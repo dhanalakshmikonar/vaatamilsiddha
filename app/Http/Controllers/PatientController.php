@@ -21,7 +21,10 @@ class PatientController extends Controller
     {
         $medicines = Medicine::orderBy('name')->get();
 
-        return view('patients.create', compact('medicines'));
+        return view('patients.create', [
+            'medicines' => $medicines,
+            'medicinesData' => $this->formatMedicinesForView($medicines),
+        ]);
     }
 
     public function store(Request $request)
@@ -58,7 +61,12 @@ class PatientController extends Controller
         $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
         $medicines = Medicine::orderBy('name')->get();
 
-        return view('patients.edit', compact('patient', 'medicines'));
+        return view('patients.edit', [
+            'patient' => $patient,
+            'medicines' => $medicines,
+            'medicinesData' => $this->formatMedicinesForView($medicines),
+            'existingMedicineItems' => $this->formatExistingItemsForView($patient),
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -172,5 +180,35 @@ class PatientController extends Controller
         }
 
         return [$items, $totalAmount];
+    }
+
+    private function formatMedicinesForView($medicines): array
+    {
+        $formatted = [];
+
+        foreach ($medicines as $medicine) {
+            $formatted[] = [
+                'id' => $medicine->id,
+                'name' => $medicine->name,
+                'cost' => (float) $medicine->cost,
+                'stock' => (int) $medicine->stock,
+            ];
+        }
+
+        return $formatted;
+    }
+
+    private function formatExistingItemsForView(Patient $patient): array
+    {
+        $formatted = [];
+
+        foreach ($patient->patientMedicines as $item) {
+            $formatted[] = [
+                'medicine_id' => $item->medicine_id,
+                'quantity' => $item->quantity,
+            ];
+        }
+
+        return $formatted;
     }
 }

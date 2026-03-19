@@ -4,6 +4,12 @@
 
 <div class="form-container">
 
+@if ($errors->any())
+<div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:20px;">
+{{$errors->first()}}
+</div>
+@endif
+
 <div class="form-header">
 <h2>Add Patient</h2>
 <p>Register a new patient in the clinic system</p>
@@ -82,12 +88,7 @@ Save Patient
 
 @push('scripts')
 <script>
-const medicines = @json($medicines->map(fn ($medicine) => [
-    'id' => $medicine->id,
-    'name' => $medicine->name,
-    'cost' => (float) $medicine->cost,
-    'stock' => (int) $medicine->stock,
-])->values());
+const medicines = {!! json_encode($medicinesData) !!};
 
 function medicineOptions(selectedId = '') {
     const defaultOption = '<option value="">Select Medicine</option>';

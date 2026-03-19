@@ -4,6 +4,12 @@
 
 <div class="form-container">
 
+@if ($errors->any())
+<div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:20px;">
+{{$errors->first()}}
+</div>
+@endif
+
 <div class="form-header">
 <h2>Edit Patient</h2>
 <p>Update patient information and medicines</p>
@@ -80,16 +86,8 @@ Total Amount: Rs <span id="grand-total">{{number_format($patient->total_amount, 
 
 @push('scripts')
 <script>
-const medicines = @json($medicines->map(fn ($medicine) => [
-    'id' => $medicine->id,
-    'name' => $medicine->name,
-    'cost' => (float) $medicine->cost,
-    'stock' => (int) $medicine->stock,
-])->values());
-const existingItems = @json($patient->patientMedicines->map(fn ($item) => [
-    'medicine_id' => $item->medicine_id,
-    'quantity' => $item->quantity,
-])->values());
+const medicines = {!! json_encode($medicinesData) !!};
+const existingItems = {!! json_encode($existingMedicineItems) !!};
 
 function medicineOptions(selectedId = '') {
     const defaultOption = '<option value="">Select Medicine</option>';
