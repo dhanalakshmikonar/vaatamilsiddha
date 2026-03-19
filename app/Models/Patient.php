@@ -7,11 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Patient extends Model
 {
     protected $fillable = [
-    'name',
-    'age',
-    'gender',
-    'phone',
-    'visit_date',
-    'diagnosis'
-];
+        'name',
+        'age',
+        'gender',
+        'phone',
+        'visit_date',
+        'diagnosis',
+        'total_amount',
+    ];
+
+    public function patientMedicines()
+    {
+        return $this->hasMany(PatientMedicine::class);
+    }
 }

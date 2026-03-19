@@ -19,14 +19,10 @@ body{
 background:#f1f4f9;
 }
 
-/* Layout */
-
 .container{
 display:flex;
 height:100vh;
 }
-
-/* Sidebar */
 
 .sidebar{
 width:240px;
@@ -65,15 +61,11 @@ background:#334155;
 color:white;
 }
 
-/* Main */
-
 .main{
 flex:1;
 display:flex;
 flex-direction:column;
 }
-
-/* Header */
 
 .header{
 background:white;
@@ -88,13 +80,9 @@ border-bottom:1px solid #e2e8f0;
 font-weight:600;
 }
 
-/* Content */
-
 .content{
 padding:30px;
 }
-
-/* Card */
 
 .card{
 background:white;
@@ -102,8 +90,6 @@ padding:25px;
 border-radius:10px;
 box-shadow:0 3px 10px rgba(0,0,0,0.05);
 }
-
-/* Table */
 
 table{
 width:100%;
@@ -127,8 +113,6 @@ table tr:hover{
 background:#f9fafb;
 }
 
-/* Button */
-
 .btn{
 background:#10b981;
 color:white;
@@ -144,8 +128,6 @@ gap:6px;
 .btn:hover{
 background:#059669;
 }
-
-/* Action buttons */
 
 .edit-btn{
 background:#3b82f6;
@@ -205,7 +187,8 @@ color:#444;
 }
 
 .form-group input,
-.form-group select{
+.form-group select,
+.form-group textarea{
 padding:10px;
 border:1px solid #ddd;
 border-radius:6px;
@@ -213,17 +196,23 @@ font-size:14px;
 }
 
 .form-actions{
-margin-top:25px;
+margin-top:20px;
 }
 
-.primary-btn{
+.primary-btn,
+.btn-primary{
 background:#10b981;
 border:none;
 padding:12px 18px;
-border-radius:6px;
 color:white;
-font-size:14px;
+border-radius:6px;
 cursor:pointer;
+font-weight:500;
+}
+
+.btn-primary:hover,
+.primary-btn:hover{
+background:#059669;
 }
 
 .form-container{
@@ -231,7 +220,7 @@ background:#fff;
 padding:30px;
 border-radius:10px;
 box-shadow:0 4px 12px rgba(0,0,0,0.05);
-max-width:900px;
+max-width:1000px;
 }
 
 .form-header h2{
@@ -244,56 +233,8 @@ font-size:14px;
 margin-bottom:25px;
 }
 
-.form-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-}
-
-.form-group{
-display:flex;
-flex-direction:column;
-}
-
-.form-group label{
-font-weight:500;
-margin-bottom:6px;
-color:#444;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea{
-padding:10px;
-border:1px solid #ddd;
-border-radius:6px;
-font-size:14px;
-}
-
 .form-group.full{
 grid-column:1 / span 2;
-}
-
-.form-actions{
-margin-top:20px;
-}
-
-.btn-primary{
-background:#10b981;
-border:none;
-padding:12px 18px;
-color:white;
-border-radius:6px;
-cursor:pointer;
-font-weight:500;
-}
-
-.btn-primary:hover{
-background:#059669;
-}
-
-.primary-btn:hover{
-background:#059669;
 }
 
 .profile-card{
@@ -301,7 +242,7 @@ background:white;
 padding:30px;
 border-radius:10px;
 box-shadow:0 4px 12px rgba(0,0,0,0.05);
-max-width:800px;
+max-width:1000px;
 }
 
 .profile-grid{
@@ -367,6 +308,94 @@ font-size:14px;
 color:#444;
 line-height:1.6;
 }
+
+.medicine-section{
+margin-top:30px;
+padding-top:20px;
+border-top:1px solid #e5e7eb;
+}
+
+.section-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:16px;
+margin-bottom:15px;
+}
+
+.secondary-btn{
+background:#0f172a;
+color:white;
+border:none;
+padding:10px 14px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.secondary-btn:hover{
+background:#1e293b;
+}
+
+.medicine-row{
+display:grid;
+grid-template-columns:2fr 1fr 1fr 1fr auto;
+gap:12px;
+margin-bottom:12px;
+align-items:end;
+}
+
+.readonly-field{
+background:#f8fafc;
+}
+
+.summary-box{
+margin-top:20px;
+padding:14px 16px;
+background:#f8fafc;
+border-radius:8px;
+font-weight:600;
+}
+
+.detail-table{
+width:100%;
+margin-top:18px;
+}
+
+.detail-table th{
+background:#0f766e;
+}
+
+@media (max-width: 768px){
+.container{
+flex-direction:column;
+height:auto;
+}
+
+.sidebar{
+width:100%;
+}
+
+.content{
+padding:18px;
+}
+
+.form-grid,
+.profile-grid,
+.medicine-row{
+grid-template-columns:1fr;
+}
+
+.form-group.full,
+.profile-grid .full{
+grid-column:auto;
+}
+
+.section-title{
+flex-direction:column;
+align-items:flex-start;
+}
+}
+
 </style>
 
 </head>
@@ -375,8 +404,6 @@ line-height:1.6;
 
 <div class="container">
 
-<!-- Sidebar -->
-
 <div class="sidebar">
 
 <div class="logo">Siddha ERP</div>
@@ -384,42 +411,32 @@ line-height:1.6;
 <ul>
 
 <li><a href="/"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-
 <li><a href="/patients"><i class="fa-solid fa-user"></i> Patients</a></li>
-
 <li><a href="/medicines"><i class="fa-solid fa-capsules"></i> Medicines</a></li>
-
-<li><a href="/prescriptions"><i class="fa-solid fa-file-medical"></i> Prescriptions</a></li>
-
 <li><a href="#"><i class="fa-solid fa-user-doctor"></i> Doctors</a></li>
 
 </ul>
 
 </div>
 
-<!-- Main -->
-
 <div class="main">
 
 <div class="header">
-
 <h3>Clinic Management System</h3>
-
 <div>
 <i class="fa-solid fa-user-circle"></i> Admin
 </div>
-
 </div>
 
 <div class="content">
-
 @yield('content')
-
 </div>
 
 </div>
 
 </div>
+
+@stack('scripts')
 
 </body>
 </html>

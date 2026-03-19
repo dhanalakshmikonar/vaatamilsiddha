@@ -1,38 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PatientController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\MedicineController;
-use App\Http\Controllers\DoctorController;   // <-- ADD THIS
-
-use App\Models\Patient;
+use App\Http\Controllers\PatientController;
 use App\Models\Medicine;
+use App\Models\Patient;
+use Illuminate\Support\Facades\Route;
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// Dashboard
 Route::get('/', function () {
-
     $patients = Patient::count();
     $medicines = Medicine::count();
-    
+    $availableStock = Medicine::sum('stock');
 
     return view('dashboard', compact(
         'patients',
         'medicines',
+        'availableStock',
     ));
 });
 
-// Patients Module
 Route::resource('patients', PatientController::class);
-
-// Medicines Module
 Route::resource('medicines', MedicineController::class);
-
-// Doctors Module
-Route::get('/doctors',[DoctorController::class,'index']);
+Route::get('/doctors', [DoctorController::class, 'index']);

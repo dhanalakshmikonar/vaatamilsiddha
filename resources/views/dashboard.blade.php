@@ -40,8 +40,6 @@ font-size:34px;
 opacity:0.8;
 }
 
-/* Colors */
-
 .blue{ background:linear-gradient(135deg,#3b82f6,#1d4ed8); }
 .green{ background:linear-gradient(135deg,#10b981,#059669); }
 .orange{ background:linear-gradient(135deg,#f59e0b,#d97706); }
@@ -49,86 +47,52 @@ opacity:0.8;
 
 </style>
 
-
 <h2>Dashboard</h2>
 <p style="color:#666;margin-top:4px">
 Clinic statistics overview
 </p>
 
-
 <div class="dashboard-grid">
 
-
 <div class="stat-card blue">
-
 <div>
 <div class="stat-title">Patients</div>
 </div>
-
 <div style="display:flex;align-items:center;gap:15px">
-
 <div class="stat-number">{{$patients}}</div>
-
 <i class="fa-solid fa-user stat-icon"></i>
-
 </div>
-
 </div>
-
-
 
 <div class="stat-card green">
-
 <div>
 <div class="stat-title">Medicines</div>
 </div>
-
 <div style="display:flex;align-items:center;gap:15px">
-
 <div class="stat-number">{{$medicines}}</div>
-
 <i class="fa-solid fa-capsules stat-icon"></i>
-
 </div>
-
 </div>
-
-
 
 <div class="stat-card orange">
-
 <div>
-<div class="stat-title">Prescriptions</div>
+<div class="stat-title">Available Stock</div>
 </div>
-
 <div style="display:flex;align-items:center;gap:15px">
-
-<div class="stat-number">{{$prescriptions}}</div>
-
-<i class="fa-solid fa-file-medical stat-icon"></i>
-
+<div class="stat-number">{{$availableStock}}</div>
+<i class="fa-solid fa-boxes-stacked stat-icon"></i>
 </div>
-
 </div>
-
-
 
 <div class="stat-card purple">
-
 <div>
 <div class="stat-title">Doctors</div>
 </div>
-
 <div style="display:flex;align-items:center;gap:15px">
-
 <div class="stat-number">0</div>
-
 <i class="fa-solid fa-user-doctor stat-icon"></i>
-
 </div>
-
 </div>
-
 
 </div>
 

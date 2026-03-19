@@ -7,8 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Medicine extends Model
 {
     protected $fillable = [
-'name',
-'cost',
-'stock'
-];
+        'name',
+        'cost',
+        'stock',
+    ];
+
+    public function patientMedicines()
+    {
+        return $this->hasMany(PatientMedicine::class);
+    }
 }
