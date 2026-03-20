@@ -33,11 +33,6 @@
 <p>{{$patient->visit_date}}</p>
 </div>
 
-<div>
-<strong>Total Amount</strong>
-<p>Rs {{number_format($patient->total_amount, 2)}}</p>
-</div>
-
 <div class="full">
 <strong>Diagnosis</strong>
 <p>{{$patient->diagnosis}}</p>
@@ -51,20 +46,16 @@
 <tr>
 <th>Medicine</th>
 <th>Qty</th>
-<th>Unit Price</th>
-<th>Total</th>
 </tr>
 
 @forelse($patient->patientMedicines as $item)
 <tr>
 <td>{{$item->medicine->name}}</td>
 <td>{{$item->quantity}}</td>
-<td>Rs {{number_format($item->unit_price, 2)}}</td>
-<td>Rs {{number_format($item->total_price, 2)}}</td>
 </tr>
 @empty
 <tr>
-<td colspan="4">No medicines added for this patient.</td>
+<td colspan="2">No medicines added for this patient.</td>
 </tr>
 @endforelse
 </table>

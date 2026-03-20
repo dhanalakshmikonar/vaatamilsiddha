@@ -68,10 +68,6 @@
 </div>
 
 <div id="medicine-rows"></div>
-
-<div class="summary-box">
-Total Amount: Rs <span id="grand-total">0.00</span>
-</div>
 </div>
 
 <div class="form-actions">
@@ -114,50 +110,14 @@ function addMedicineRow(selectedId = '', quantity = 1) {
             <input type="number" name="quantity[]" min="1" value="${quantity}" oninput="updateMedicineRow(this)">
         </div>
         <div class="form-group">
-            <label>Unit Price</label>
-            <input type="text" class="readonly-field unit-price" readonly>
-        </div>
-        <div class="form-group">
-            <label>Total</label>
-            <input type="text" class="readonly-field line-total" readonly>
-        </div>
-        <div class="form-group">
             <button type="button" class="delete-btn" onclick="removeMedicineRow(this)">Remove</button>
         </div>
     `;
     container.appendChild(row);
-    updateMedicineRow(row.querySelector('select'));
-}
-
-function updateMedicineRow(element) {
-    const row = element.closest('.medicine-row');
-    const select = row.querySelector('select');
-    const quantityInput = row.querySelector('input[name="quantity[]"]');
-    const unitPriceInput = row.querySelector('.unit-price');
-    const lineTotalInput = row.querySelector('.line-total');
-    const selectedOption = select.options[select.selectedIndex];
-    const unitPrice = parseFloat(selectedOption?.dataset?.cost || 0);
-    const quantity = parseInt(quantityInput.value || 0, 10);
-
-    unitPriceInput.value = unitPrice.toFixed(2);
-    lineTotalInput.value = (unitPrice * quantity).toFixed(2);
-
-    updateGrandTotal();
 }
 
 function removeMedicineRow(button) {
     button.closest('.medicine-row').remove();
-    updateGrandTotal();
-}
-
-function updateGrandTotal() {
-    let total = 0;
-
-    document.querySelectorAll('.line-total').forEach((input) => {
-        total += parseFloat(input.value || 0);
-    });
-
-    document.getElementById('grand-total').textContent = total.toFixed(2);
 }
 
 addMedicineRow();

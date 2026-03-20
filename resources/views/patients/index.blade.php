@@ -21,6 +21,7 @@
 <th>Age</th>
 <th>Phone</th>
 <th>Visit Date</th>
+<th>Billing</th>
 <th>Action</th>
 </tr>
 
@@ -32,6 +33,11 @@
 <td>{{$patient->age}}</td>
 <td>{{$patient->phone}}</td>
 <td>{{$patient->visit_date}}</td>
+<td>
+<a href="/billing/{{$patient->id}}" class="btn" style="padding:8px 12px;font-size:13px;">
+<i class="fa-solid fa-file-invoice"></i> Bill
+</a>
+</td>
 
 <td style="display:flex;gap:10px">
 

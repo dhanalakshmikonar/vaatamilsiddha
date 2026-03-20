@@ -2,37 +2,80 @@
 
 @section('content')
 
-<div class="page-title">
-<h2>Siddha Doctors</h2>
-<p>Registered practitioners in clinic</p>
+<div class="page-title" style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+<div>
+<h2>Vaatamilsiddha Doctors</h2>
+<p>Manage licensed practitioners with profile and Aadhar details</p>
+</div>
+<a href="/doctors/create" class="btn">
+<i class="fa-solid fa-plus"></i> Add Doctor
+</a>
 </div>
 
-<div class="doctor-grid">
+<div class="doctor-grid doctor-grid-elegant">
 
 @foreach($doctors as $doctor)
 
-<div class="doctor-card">
+<div class="doctor-card doctor-card-elegant">
 
-<div class="doctor-avatar">
+<div class="doctor-top">
+<div class="doctor-photo-wrap">
+@if($doctor->photo)
+<img src="/{{$doctor->photo}}" alt="{{$doctor->name}}" class="doctor-photo">
+@else
+<div class="doctor-photo doctor-photo-fallback">
 <i class="fa-solid fa-user-doctor"></i>
 </div>
+@endif
+</div>
 
+<div class="doctor-title-block">
 <h3>{{$doctor->name}}</h3>
+<p class="doctor-role">{{$doctor->role ?: 'Doctor'}}</p>
+<span class="doctor-chip">{{$doctor->specialization}}</span>
+</div>
+</div>
 
-<p class="special">{{$doctor->specialization}}</p>
+<div class="doctor-info-grid">
+<div><strong>Qualification</strong><p>{{$doctor->qualification ?: '-'}}</p></div>
+<div><strong>License No</strong><p>{{$doctor->license_no}}</p></div>
+<div><strong>Aadhar No</strong><p>{{$doctor->aadhar}}</p></div>
+<div><strong>Experience</strong><p>{{$doctor->experience}} years</p></div>
+<div><strong>Phone</strong><p>{{$doctor->phone}}</p></div>
+<div><strong>Address</strong><p>{{$doctor->clinic_address ?: '-'}}</p></div>
+</div>
 
-<div class="doctor-info">
+<div class="doctor-doc-row">
+<div class="doctor-doc-box">
+<span>Doctor Photo</span>
+@if($doctor->photo)
+<a href="/{{$doctor->photo}}" target="_blank" class="doc-link">View image</a>
+@else
+<span class="doc-muted">Not uploaded</span>
+@endif
+</div>
+<div class="doctor-doc-box">
+<span>Aadhar Card Photo</span>
+@if($doctor->aadhar_photo)
+<a href="/{{$doctor->aadhar_photo}}" target="_blank" class="doc-link">View image</a>
+@else
+<span class="doc-muted">Not uploaded</span>
+@endif
+</div>
+</div>
 
-<p><strong>Aadhar:</strong> {{$doctor->aadhar}}</p>
+<div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+<a href="/doctors/{{$doctor->id}}/edit" class="btn" style="padding:9px 14px;font-size:13px;">
+<i class="fa-solid fa-pen"></i> Edit Doctor
+</a>
 
-<p><strong>License:</strong> {{$doctor->license_no}}</p>
-
-<p><strong>Phone:</strong> {{$doctor->phone}}</p>
-
-<p><strong>Experience:</strong> {{$doctor->experience}} years</p>
-
-<p><strong>Address:</strong> {{$doctor->clinic_address}}</p>
-
+<form action="/doctors/{{$doctor->id}}" method="POST" onsubmit="return confirm('Delete this doctor?');">
+@csrf
+@method('DELETE')
+<button type="submit" class="delete-btn" style="padding:9px 14px;font-size:13px;">
+<i class="fa-solid fa-trash"></i> Delete
+</button>
+</form>
 </div>
 
 </div>
