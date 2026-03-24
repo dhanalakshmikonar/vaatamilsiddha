@@ -35,8 +35,6 @@
 <div class="alert-error">{{ session('error') }}</div>
 @endif
 
-<div class="meta-note">Patient file headers: <strong>name, age, gender, phone, visit_date, diagnosis</strong></div>
-
 <table>
 
 <tr>

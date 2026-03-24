@@ -35,8 +35,6 @@
 <div class="alert-error">{{ session('error') }}</div>
 @endif
 
-<div class="meta-note">Medicine file headers: <strong>name, cost, stock</strong></div>
-
 <table>
 
 <tr>
