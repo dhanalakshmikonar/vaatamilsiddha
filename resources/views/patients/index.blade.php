@@ -65,21 +65,21 @@
 <td>
 <div class="table-actions">
 <a href="/patients/{{$patient->id}}">
-<button class="icon-action view">
+<button type="button" class="icon-action view" aria-label="View patient">
 <i class="fa-solid fa-eye"></i>
 </button>
 </a>
 
 <a href="/patients/{{$patient->id}}/edit">
-<button class="icon-action edit">
+<button type="button" class="icon-action edit" aria-label="Edit patient">
 <i class="fa-solid fa-pen"></i>
 </button>
 </a>
 
-<form action="/patients/{{$patient->id}}" method="POST">
+<form action="/patients/{{$patient->id}}" method="POST" onsubmit="return confirm('Delete this patient record?');">
 @csrf
 @method('DELETE')
-<button class="icon-action delete">
+<button type="submit" class="icon-action delete" aria-label="Delete patient">
 <i class="fa-solid fa-trash"></i>
 </button>
 </form>

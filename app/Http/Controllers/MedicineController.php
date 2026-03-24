@@ -9,6 +9,15 @@ use RuntimeException;
 
 class MedicineController extends Controller
 {
+private function calculateSellingPrice(float $costPrice): float
+{
+return round($costPrice * 1.20, 2);
+}
+
+private function calculateTotalAmount(float $costPrice, int $stock): float
+{
+return round($costPrice * $stock, 2);
+}
 
 public function index()
 {
@@ -46,7 +55,13 @@ continue;
 Medicine::updateOrCreate(
 ['name' => trim((string) $data['name'])],
 [
-'cost' => (float) ($data['cost'] ?? 0),
+'mode_of_product' => trim((string) ($data['mode_of_product'] ?? '')),
+'pharmaceutical_name' => trim((string) ($data['pharmaceutical_name'] ?? '')),
+'expiry_date' => !empty($data['expiry_date']) ? $data['expiry_date'] : null,
+'cost_price' => (float) ($data['cost_price'] ?? $data['cost'] ?? 0),
+'selling_price' => $this->calculateSellingPrice((float) ($data['cost_price'] ?? $data['cost'] ?? 0)),
+'total_amount' => $this->calculateTotalAmount((float) ($data['cost_price'] ?? $data['cost'] ?? 0), (int) ($data['stock'] ?? 0)),
+'cost' => (float) ($data['cost_price'] ?? $data['cost'] ?? 0),
 'stock' => (int) ($data['stock'] ?? 0),
 ]
 );
@@ -66,11 +81,28 @@ return view('medicines.create');
 
 public function store(Request $request)
 {
+$data = $request->validate([
+'name' => ['required', 'string', 'max:255'],
+'mode_of_product' => ['nullable', 'string', 'max:255'],
+'pharmaceutical_name' => ['nullable', 'string', 'max:255'],
+'expiry_date' => ['nullable', 'date'],
+'stock' => ['required', 'integer', 'min:0'],
+'cost_price' => ['required', 'numeric', 'min:0'],
+]);
+
+$costPrice = (float) $data['cost_price'];
+$stock = (int) $data['stock'];
 
 Medicine::create([
-'name' => $request->name,
-'cost' => $request->cost,
-'stock' => $request->stock
+'name' => $data['name'],
+'mode_of_product' => $data['mode_of_product'] ?? null,
+'pharmaceutical_name' => $data['pharmaceutical_name'] ?? null,
+'expiry_date' => $data['expiry_date'] ?? null,
+'cost_price' => $costPrice,
+'selling_price' => $this->calculateSellingPrice($costPrice),
+'total_amount' => $this->calculateTotalAmount($costPrice, $stock),
+'cost' => $costPrice,
+'stock' => $stock
 ]);
 
 return redirect('/medicines');
@@ -90,13 +122,29 @@ return view('medicines.edit', compact('medicine'));
 
 public function update(Request $request, $id)
 {
+$data = $request->validate([
+'name' => ['required', 'string', 'max:255'],
+'mode_of_product' => ['nullable', 'string', 'max:255'],
+'pharmaceutical_name' => ['nullable', 'string', 'max:255'],
+'expiry_date' => ['nullable', 'date'],
+'stock' => ['required', 'integer', 'min:0'],
+'cost_price' => ['required', 'numeric', 'min:0'],
+]);
 
 $medicine = Medicine::find($id);
+$costPrice = (float) $data['cost_price'];
+$stock = (int) $data['stock'];
 
 $medicine->update([
-'name'=>$request->name,
-'cost'=>$request->cost,
-'stock'=>$request->stock
+'name'=>$data['name'],
+'mode_of_product'=>$data['mode_of_product'] ?? null,
+'pharmaceutical_name'=>$data['pharmaceutical_name'] ?? null,
+'expiry_date'=>$data['expiry_date'] ?? null,
+'cost_price'=>$costPrice,
+'selling_price'=>$this->calculateSellingPrice($costPrice),
+'total_amount'=>$this->calculateTotalAmount($costPrice, $stock),
+'cost'=>$costPrice,
+'stock'=>$stock
 ]);
 
 return redirect('/medicines');

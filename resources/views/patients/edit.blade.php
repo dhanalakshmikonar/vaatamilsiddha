@@ -47,6 +47,26 @@
 </div>
 
 <div class="form-group">
+<label>Place</label>
+<input type="text" name="place" value="{{$patient->place}}">
+</div>
+
+<div class="form-group">
+<label>Entity</label>
+<input type="text" name="entity" value="{{$patient->entity}}">
+</div>
+
+<div class="form-group">
+<label>Payment Mode</label>
+<input type="text" name="payment_mode" value="{{$patient->payment_mode}}">
+</div>
+
+<div class="form-group">
+<label>Fees</label>
+<input type="number" step="0.01" min="0" name="fees" value="{{$patient->fees}}">
+</div>
+
+<div class="form-group">
 <label>Visit Date</label>
 <input type="date" name="visit_date" value="{{$patient->visit_date}}" required>
 </div>

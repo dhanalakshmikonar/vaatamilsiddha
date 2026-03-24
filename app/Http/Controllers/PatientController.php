@@ -60,6 +60,10 @@ class PatientController extends Controller
                 'age' => (int) ($data['age'] ?? 0),
                 'gender' => trim((string) ($data['gender'] ?? 'Other')),
                 'phone' => trim((string) ($data['phone'] ?? '')),
+                'place' => trim((string) ($data['place'] ?? '')),
+                'entity' => trim((string) ($data['entity'] ?? '')),
+                'payment_mode' => trim((string) ($data['payment_mode'] ?? '')),
+                'fees' => (float) ($data['fees'] ?? 0),
                 'visit_date' => !empty($data['visit_date']) ? $data['visit_date'] : now()->toDateString(),
                 'diagnosis' => trim((string) ($data['diagnosis'] ?? '')),
                 'total_amount' => 0,
@@ -83,6 +87,10 @@ class PatientController extends Controller
                 'age' => $data['age'],
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? null,
+                'place' => $data['place'] ?? null,
+                'entity' => $data['entity'] ?? null,
+                'payment_mode' => $data['payment_mode'] ?? null,
+                'fees' => $data['fees'] ?? 0,
                 'visit_date' => $data['visit_date'],
                 'diagnosis' => $data['diagnosis'] ?? null,
                 'total_amount' => $totalAmount,
@@ -120,7 +128,9 @@ class PatientController extends Controller
 
         DB::transaction(function () use ($patient, $data) {
             foreach ($patient->patientMedicines as $existingItem) {
-                $existingItem->medicine->increment('stock', $existingItem->quantity);
+                if ($existingItem->medicine) {
+                    $existingItem->medicine->increment('stock', $existingItem->quantity);
+                }
             }
 
             [$items, $totalAmount] = $this->prepareMedicineItems($data);
@@ -130,6 +140,10 @@ class PatientController extends Controller
                 'age' => $data['age'],
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? null,
+                'place' => $data['place'] ?? null,
+                'entity' => $data['entity'] ?? null,
+                'payment_mode' => $data['payment_mode'] ?? null,
+                'fees' => $data['fees'] ?? 0,
                 'visit_date' => $data['visit_date'],
                 'diagnosis' => $data['diagnosis'] ?? null,
                 'total_amount' => $totalAmount,
@@ -155,13 +169,15 @@ class PatientController extends Controller
 
         DB::transaction(function () use ($patient) {
             foreach ($patient->patientMedicines as $item) {
-                $item->medicine->increment('stock', $item->quantity);
+                if ($item->medicine) {
+                    $item->medicine->increment('stock', $item->quantity);
+                }
             }
 
             $patient->delete();
         });
 
-        return redirect('/patients');
+        return redirect('/patients')->with('success', 'Patient deleted successfully.');
     }
 
     public function show($id)
@@ -178,6 +194,10 @@ class PatientController extends Controller
             'age' => ['required', 'integer', 'min:0'],
             'gender' => ['required', 'string', 'max:50'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'place' => ['nullable', 'string', 'max:255'],
+            'entity' => ['nullable', 'string', 'max:255'],
+            'payment_mode' => ['nullable', 'string', 'max:100'],
+            'fees' => ['nullable', 'numeric', 'min:0'],
             'visit_date' => ['required', 'date'],
             'diagnosis' => ['nullable', 'string'],
             'medicine_id' => ['nullable', 'array'],
@@ -209,7 +229,7 @@ class PatientController extends Controller
                 ]);
             }
 
-            $unitPrice = (float) $medicine->cost;
+            $unitPrice = (float) ($medicine->selling_price ?: $medicine->cost);
             $lineTotal = $unitPrice * $quantity;
 
             $items[] = [
@@ -235,6 +255,7 @@ class PatientController extends Controller
                 'id' => $medicine->id,
                 'name' => $medicine->name,
                 'cost' => (float) $medicine->cost,
+                'selling_price' => (float) ($medicine->selling_price ?? 0),
                 'stock' => (int) $medicine->stock,
             ];
         }

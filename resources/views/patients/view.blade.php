@@ -4,7 +4,21 @@
 
 <div class="profile-card">
 
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
 <h2>Patient Profile</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+<a href="/patients/{{$patient->id}}/edit" class="btn">
+<i class="fa-solid fa-pen"></i> Edit Patient
+</a>
+<form action="/patients/{{$patient->id}}" method="POST" onsubmit="return confirm('Delete this patient record?');">
+@csrf
+@method('DELETE')
+<button type="submit" class="delete-btn">
+<i class="fa-solid fa-trash"></i> Delete Patient
+</button>
+</form>
+</div>
+</div>
 
 <div class="profile-grid">
 
@@ -26,6 +40,26 @@
 <div>
 <strong>Phone</strong>
 <p>{{$patient->phone}}</p>
+</div>
+
+<div>
+<strong>Place</strong>
+<p>{{$patient->place}}</p>
+</div>
+
+<div>
+<strong>Entity</strong>
+<p>{{$patient->entity}}</p>
+</div>
+
+<div>
+<strong>Payment Mode</strong>
+<p>{{$patient->payment_mode}}</p>
+</div>
+
+<div>
+<strong>Fees</strong>
+<p>Rs {{number_format((float) $patient->fees, 2)}}</p>
 </div>
 
 <div>

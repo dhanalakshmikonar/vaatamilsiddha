@@ -47,6 +47,26 @@
 </div>
 
 <div class="form-group">
+<label>Place</label>
+<input type="text" name="place" placeholder="Enter place">
+</div>
+
+<div class="form-group">
+<label>Entity</label>
+<input type="text" name="entity" placeholder="Enter entity">
+</div>
+
+<div class="form-group">
+<label>Payment Mode</label>
+<input type="text" name="payment_mode" placeholder="Cash / Card / UPI">
+</div>
+
+<div class="form-group">
+<label>Fees</label>
+<input type="number" step="0.01" min="0" name="fees" placeholder="Enter fees">
+</div>
+
+<div class="form-group">
 <label>Visit Date</label>
 <input type="date" name="visit_date" value="{{date('Y-m-d')}}" required>
 </div>

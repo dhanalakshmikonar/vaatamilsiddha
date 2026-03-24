@@ -41,8 +41,13 @@
 
 <tr>
 <th>Name</th>
-<th>Cost</th>
+<th>Mode</th>
+<th>Pharmaceutical</th>
+<th>Expiry</th>
 <th>Available Stock</th>
+<th>Cost Price</th>
+<th>Selling Price</th>
+<th>Total Amount</th>
 <th>Action</th>
 </tr>
 
@@ -51,8 +56,13 @@
 <tr>
 
 <td>{{$medicine->name}}</td>
-<td>Rs {{$medicine->cost}}</td>
+<td>{{$medicine->mode_of_product}}</td>
+<td>{{$medicine->pharmaceutical_name}}</td>
+<td>{{$medicine->expiry_date}}</td>
 <td>{{$medicine->stock}}</td>
+<td>Rs {{$medicine->cost_price ?: $medicine->cost}}</td>
+<td>Rs {{$medicine->selling_price}}</td>
+<td>Rs {{$medicine->total_amount}}</td>
 
 <td>
 <div class="table-actions">
