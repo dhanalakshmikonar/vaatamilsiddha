@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use App\Models\Patient;
+use App\Support\SimpleSpreadsheetImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class PatientController extends Controller
 {
@@ -25,6 +27,48 @@ class PatientController extends Controller
             'medicines' => $medicines,
             'medicinesData' => $this->formatMedicinesForView($medicines),
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,xlsx'],
+        ]);
+
+        try {
+            $rows = SimpleSpreadsheetImporter::parse($request->file('file')->getRealPath());
+        } catch (RuntimeException $exception) {
+            return redirect('/patients')->with('error', $exception->getMessage());
+        }
+
+        if (count($rows) < 2) {
+            return redirect('/patients')->with('error', 'Upload a file with a header row and at least one patient row.');
+        }
+
+        $headers = array_map(fn ($header) => strtolower(trim((string) $header)), $rows[0]);
+        $imported = 0;
+
+        foreach (array_slice($rows, 1) as $row) {
+            $data = array_combine($headers, array_pad($row, count($headers), null));
+
+            if (!isset($data['name']) || trim((string) $data['name']) === '') {
+                continue;
+            }
+
+            Patient::create([
+                'name' => trim((string) $data['name']),
+                'age' => (int) ($data['age'] ?? 0),
+                'gender' => trim((string) ($data['gender'] ?? 'Other')),
+                'phone' => trim((string) ($data['phone'] ?? '')),
+                'visit_date' => !empty($data['visit_date']) ? $data['visit_date'] : now()->toDateString(),
+                'diagnosis' => trim((string) ($data['diagnosis'] ?? '')),
+                'total_amount' => 0,
+            ]);
+
+            $imported++;
+        }
+
+        return redirect('/patients')->with('success', $imported . ' patient rows imported successfully.');
     }
 
     public function store(Request $request)

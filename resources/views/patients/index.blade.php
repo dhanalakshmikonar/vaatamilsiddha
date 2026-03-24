@@ -2,17 +2,40 @@
 
 @section('content')
 
-<div class="card">
+<div class="page-shell">
 
-<div style="display:flex;justify-content:space-between;align-items:center">
-
+<div class="toolbar-card">
+<div class="toolbar-title">
 <h2>Patients</h2>
+<p>Manage patient records, import visit data, and move quickly to billing details.</p>
+</div>
+
+<div class="toolbar-actions">
+<form method="POST" action="/patients/import" enctype="multipart/form-data" class="upload-inline">
+@csrf
+<input type="file" name="file" accept=".csv,.xlsx" required>
+<button type="submit" class="btn">
+<i class="fa-solid fa-file-arrow-up"></i> Upload Excel
+</button>
+</form>
 
 <a href="/patients/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Patient
 </a>
-
 </div>
+</div>
+
+<div class="card">
+
+@if (session('success'))
+<div class="alert-success">{{ session('success') }}</div>
+@endif
+
+@if (session('error'))
+<div class="alert-error">{{ session('error') }}</div>
+@endif
+
+<div class="meta-note">Patient file headers: <strong>name, age, gender, phone, visit_date, diagnosis</strong></div>
 
 <table>
 
@@ -34,36 +57,33 @@
 <td>{{$patient->phone}}</td>
 <td>{{$patient->visit_date}}</td>
 <td>
-<a href="/billing/{{$patient->id}}" class="btn" style="padding:8px 12px;font-size:13px;">
+<a href="/billing/{{$patient->id}}" class="ghost-btn">
 <i class="fa-solid fa-file-invoice"></i> Bill
 </a>
 </td>
 
-<td style="display:flex;gap:10px">
-
+<td>
+<div class="table-actions">
 <a href="/patients/{{$patient->id}}">
-<button class="view-btn">
+<button class="icon-action view">
 <i class="fa-solid fa-eye"></i>
 </button>
 </a>
 
 <a href="/patients/{{$patient->id}}/edit">
-<button class="edit-btn">
+<button class="icon-action edit">
 <i class="fa-solid fa-pen"></i>
 </button>
 </a>
 
 <form action="/patients/{{$patient->id}}" method="POST">
-
 @csrf
 @method('DELETE')
-
-<button class="delete-btn">
+<button class="icon-action delete">
 <i class="fa-solid fa-trash"></i>
 </button>
-
 </form>
-
+</div>
 </td>
 
 </tr>
@@ -71,6 +91,8 @@
 @endforeach
 
 </table>
+
+</div>
 
 </div>
 

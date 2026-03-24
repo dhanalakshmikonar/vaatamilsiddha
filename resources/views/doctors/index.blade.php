@@ -2,14 +2,19 @@
 
 @section('content')
 
-<div class="page-title" style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-<div>
+<div class="page-shell">
+
+<div class="toolbar-card">
+<div class="toolbar-title">
 <h2>Vaatamilsiddha Doctors</h2>
-<p>Manage licensed practitioners with profile and Aadhar details</p>
+<p>Manage licensed practitioners with profile, qualification, role, and document details.</p>
 </div>
+
+<div class="toolbar-actions">
 <a href="/doctors/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Doctor
 </a>
+</div>
 </div>
 
 <div class="doctor-grid doctor-grid-elegant">
@@ -65,14 +70,14 @@
 </div>
 
 <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
-<a href="/doctors/{{$doctor->id}}/edit" class="btn" style="padding:9px 14px;font-size:13px;">
+<a href="/doctors/{{$doctor->id}}/edit" class="btn">
 <i class="fa-solid fa-pen"></i> Edit Doctor
 </a>
 
 <form action="/doctors/{{$doctor->id}}" method="POST" onsubmit="return confirm('Delete this doctor?');">
 @csrf
 @method('DELETE')
-<button type="submit" class="delete-btn" style="padding:9px 14px;font-size:13px;">
+<button type="submit" class="delete-btn">
 <i class="fa-solid fa-trash"></i> Delete
 </button>
 </form>
@@ -81,6 +86,8 @@
 </div>
 
 @endforeach
+
+</div>
 
 </div>
 
