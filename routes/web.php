@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('patients', PatientController::class);
     Route::resource('medicines', MedicineController::class);
     Route::post('/patients/import', [PatientController::class, 'import']);
+    Route::delete('/patients/import/clear', [PatientController::class, 'clearImported']);
     Route::post('/medicines/import', [MedicineController::class, 'import']);
     Route::delete('/medicines/import/clear', [MedicineController::class, 'clearImported']);
     Route::get('/billing', [BillingController::class, 'index']);

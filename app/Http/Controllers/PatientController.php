@@ -81,6 +81,25 @@ class PatientController extends Controller
         return redirect('/patients')->with('success', $imported . ' patient rows imported successfully.');
     }
 
+    public function clearImported()
+    {
+        DB::transaction(function () {
+            $patients = Patient::with('patientMedicines.medicine')->get();
+
+            foreach ($patients as $patient) {
+                foreach ($patient->patientMedicines as $item) {
+                    if ($item->medicine) {
+                        $item->medicine->increment('stock', $item->quantity);
+                    }
+                }
+
+                $patient->delete();
+            }
+        });
+
+        return redirect('/patients')->with('success', 'All imported patient records were deleted successfully.');
+    }
+
     public function store(Request $request)
     {
         $data = $this->validatePatient($request);

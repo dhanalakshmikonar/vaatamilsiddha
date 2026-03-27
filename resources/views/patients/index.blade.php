@@ -19,6 +19,14 @@
 </button>
 </form>
 
+<form method="POST" action="/patients/import/clear" onsubmit="return confirm('Delete all imported patient records?');">
+@csrf
+@method('DELETE')
+<button type="submit" class="delete-btn">
+<i class="fa-solid fa-trash"></i> Delete Uploaded Data
+</button>
+</form>
+
 <a href="/patients/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Patient
 </a>
