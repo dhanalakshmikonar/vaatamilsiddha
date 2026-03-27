@@ -122,6 +122,45 @@ Medicine::query()->delete();
 return redirect('/medicines')->with('success', 'All imported medicine records were deleted successfully.');
 }
 
+public function export()
+{
+$medicines = Medicine::latest()->get();
+$fileName = 'medicines_export_' . now()->format('Ymd_His') . '.csv';
+
+return response()->streamDownload(function () use ($medicines) {
+$output = fopen('php://output', 'w');
+fwrite($output, "\xEF\xBB\xBF");
+
+fputcsv($output, [
+'Name',
+'Mode of Product',
+'Pharmaceutical Name',
+'Expiry Date',
+'Stock',
+'Cost Price',
+'Selling Price',
+'Total Amount',
+]);
+
+foreach ($medicines as $medicine) {
+fputcsv($output, [
+$medicine->name,
+$medicine->mode_of_product,
+$medicine->pharmaceutical_name,
+$medicine->expiry_date,
+$medicine->stock,
+$medicine->cost_price ?: $medicine->cost,
+$medicine->selling_price,
+$medicine->total_amount,
+]);
+}
+
+fclose($output);
+}, $fileName, [
+'Content-Type' => 'text/csv; charset=UTF-8',
+]);
+}
+
 private function selectBestMedicineSheet(array $sheets): array
 {
 $bestRows = [];

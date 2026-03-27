@@ -100,6 +100,63 @@ class PatientController extends Controller
         return redirect('/patients')->with('success', 'All imported patient records were deleted successfully.');
     }
 
+    public function export()
+    {
+        $patients = Patient::with('patientMedicines.medicine')
+            ->latest()
+            ->get();
+
+        $fileName = 'patients_export_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($patients) {
+            $output = fopen('php://output', 'w');
+            fwrite($output, "\xEF\xBB\xBF");
+
+            fputcsv($output, [
+                'Name',
+                'Age',
+                'Gender',
+                'Phone',
+                'Place',
+                'Entity',
+                'Payment Mode',
+                'Fees',
+                'Visit Date',
+                'Diagnosis',
+                'Medicines',
+                'Total Amount',
+            ]);
+
+            foreach ($patients as $patient) {
+                $medicineSummary = $patient->patientMedicines
+                    ->map(function ($item) {
+                        $medicineName = $item->medicine?->name ?: 'Unknown';
+                        return $medicineName . ' x ' . $item->quantity;
+                    })
+                    ->implode(', ');
+
+                fputcsv($output, [
+                    $patient->name,
+                    $patient->age,
+                    $patient->gender,
+                    $patient->phone,
+                    $patient->place,
+                    $patient->entity,
+                    $patient->payment_mode,
+                    $patient->fees,
+                    $patient->visit_date,
+                    $patient->diagnosis,
+                    $medicineSummary,
+                    $patient->total_amount,
+                ]);
+            }
+
+            fclose($output);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $this->validatePatient($request);

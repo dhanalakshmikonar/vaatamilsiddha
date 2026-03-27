@@ -30,6 +30,10 @@
 <a href="/patients/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Patient
 </a>
+
+<a href="/patients/export" class="ghost-btn">
+<i class="fa-solid fa-file-export"></i> Export Excel
+</a>
 </div>
 </div>
 
@@ -43,6 +47,7 @@
 <div class="alert-error">{{ session('error') }}</div>
 @endif
 
+<div class="table-shell">
 <table>
 
 <tr>
@@ -50,7 +55,6 @@
 <th>Age</th>
 <th>Phone</th>
 <th>Visit Date</th>
-<th>Billing</th>
 <th>Action</th>
 </tr>
 
@@ -62,11 +66,6 @@
 <td>{{$patient->age}}</td>
 <td>{{$patient->phone}}</td>
 <td>{{$patient->visit_date}}</td>
-<td>
-<a href="/billing/{{$patient->id}}" class="ghost-btn">
-<i class="fa-solid fa-file-invoice"></i> Bill
-</a>
-</td>
 
 <td>
 <div class="table-actions">
@@ -97,6 +96,7 @@
 @endforeach
 
 </table>
+</div>
 
 </div>
 

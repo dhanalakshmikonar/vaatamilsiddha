@@ -28,8 +28,9 @@ overflow:hidden;
 
 body{
 background:
-radial-gradient(circle at top left, rgba(16,185,129,0.08), transparent 18%),
-linear-gradient(180deg,#eef5fb 0%,#f8fbff 100%);
+radial-gradient(circle at top left, rgba(16,185,129,0.08), transparent 22%),
+radial-gradient(circle at bottom right, rgba(14,116,144,0.08), transparent 22%),
+linear-gradient(180deg,#edf3f9 0%,#f6f9fd 100%);
 height:100vh;
 overflow:hidden;
 color:#0f172a;
@@ -165,7 +166,7 @@ filter:brightness(1.05);
 }
 
 .content{
-padding:28px;
+padding:24px;
 flex:1;
 overflow-y:auto;
 overflow-x:hidden;
@@ -178,9 +179,9 @@ display:none;
 
 .card{
 background:white;
-padding:26px;
+padding:22px;
 border-radius:22px;
-box-shadow:0 18px 42px rgba(15,23,42,0.08);
+box-shadow:0 14px 28px rgba(15,23,42,0.06);
 border:1px solid rgba(226,232,240,0.85);
 width:100%;
 }
@@ -188,36 +189,45 @@ width:100%;
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:22px;
+margin-top:0;
 }
 
 table th{
 text-align:left;
-padding:16px 14px;
-background:#f0fdfa;
-color:#0f766e;
-font-size:13px;
-letter-spacing:0.05em;
+padding:14px 14px;
+background:#eef7f8;
+color:#0f4b56;
+font-size:12px;
+letter-spacing:0.07em;
 text-transform:uppercase;
-border-bottom:1px solid #ccfbf1;
+border-bottom:1px solid #d9edf0;
+position:sticky;
+top:0;
+z-index:1;
 }
 
 table td{
-padding:14px;
+padding:13px 14px;
 border-bottom:1px solid #edf2f7;
+font-size:14px;
+vertical-align:top;
 }
 
-table tr:hover{
-background:#f8fbff;
+table tbody tr:nth-child(even){
+background:#fcfdff;
+}
+
+table tbody tr:hover{
+background:#f3f9ff;
 }
 
 .btn{
 background:linear-gradient(135deg,#14b8a6,#0f766e);
 color:white;
-padding:11px 16px;
+padding:10px 14px;
 border-radius:14px;
 text-decoration:none;
-font-size:14px;
+font-size:13px;
 display:inline-flex;
 align-items:center;
 gap:8px;
@@ -235,11 +245,11 @@ filter:brightness(1.02);
 
 .upload-inline{
 display:flex;
-gap:10px;
+gap:8px;
 align-items:center;
 flex-wrap:wrap;
-padding:10px 12px;
-background:#f8fafc;
+padding:8px 10px;
+background:#f8fbff;
 border:1px solid #e2e8f0;
 border-radius:16px;
 }
@@ -248,10 +258,10 @@ border-radius:16px;
 background:white;
 border:1px solid #d1d5db;
 border-radius:12px;
-padding:10px 12px;
-font-size:13px;
+padding:8px 10px;
+font-size:12px;
 color:#475569;
-min-width:220px;
+min-width:210px;
 cursor:pointer;
 box-shadow:inset 0 1px 0 rgba(255,255,255,0.8);
 transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
@@ -268,7 +278,7 @@ margin-right:12px;
 border:none;
 background:linear-gradient(135deg,#0f172a,#1e293b);
 color:white;
-padding:10px 14px;
+padding:8px 12px;
 border-radius:10px;
 font-weight:700;
 cursor:pointer;
@@ -314,7 +324,7 @@ box-shadow:0 10px 22px rgba(37,99,235,0.2);
 .delete-btn{
 background:linear-gradient(135deg,#ef4444,#dc2626);
 color:white;
-padding:10px 12px;
+padding:10px 14px;
 border-radius:12px;
 border:none;
 cursor:pointer;
@@ -683,24 +693,24 @@ text-align:right;
 
 .page-shell{
 display:grid;
-gap:18px;
+gap:14px;
 }
 
 .toolbar-card{
 display:flex;
 justify-content:space-between;
-align-items:flex-start;
+align-items:center;
 gap:18px;
 flex-wrap:wrap;
-padding:22px 24px;
+padding:20px 22px;
 background:white;
 border:1px solid rgba(226,232,240,0.85);
 border-radius:22px;
-box-shadow:0 18px 42px rgba(15,23,42,0.08);
+box-shadow:0 14px 28px rgba(15,23,42,0.06);
 }
 
 .toolbar-title h2{
-font-size:28px;
+font-size:26px;
 letter-spacing:-0.03em;
 margin-bottom:6px;
 }
@@ -709,6 +719,7 @@ margin-bottom:6px;
 color:#64748b;
 font-size:14px;
 line-height:1.6;
+max-width:620px;
 }
 
 .toolbar-actions{
@@ -723,7 +734,7 @@ justify-content:flex-end;
 display:inline-flex;
 align-items:center;
 gap:8px;
-padding:11px 15px;
+padding:10px 14px;
 border-radius:14px;
 border:1px solid #dbeafe;
 background:#eff6ff;
@@ -748,36 +759,122 @@ line-height:1.6;
 
 .table-actions{
 display:flex;
-gap:10px;
+gap:8px;
 align-items:center;
 flex-wrap:wrap;
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));
+gap:14px;
+}
+
+.stat-card{
+background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+border:1px solid #e2e8f0;
+border-radius:18px;
+padding:16px 18px;
+box-shadow:0 10px 24px rgba(15,23,42,0.05);
+}
+
+.stat-label{
+font-size:12px;
+font-weight:700;
+letter-spacing:0.08em;
+text-transform:uppercase;
+color:#64748b;
+}
+
+.stat-value{
+margin-top:8px;
+font-size:26px;
+font-weight:800;
+letter-spacing:-0.03em;
+color:#0f172a;
+}
+
+.stat-sub{
+margin-top:6px;
+font-size:13px;
+color:#64748b;
+}
+
+.table-shell{
+margin-top:6px;
+border:1px solid #e2e8f0;
+border-radius:18px;
+overflow:hidden;
+background:#fff;
+box-shadow:inset 0 0 0 1px rgba(255,255,255,0.5);
+}
+
+.table-shell table{
+margin-top:0;
+min-width:900px;
+}
+
+.pill{
+display:inline-flex;
+align-items:center;
+padding:6px 10px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;
+background:#f1f5f9;
+color:#334155;
 }
 
 .icon-action{
 display:inline-flex;
 align-items:center;
 justify-content:center;
-width:40px;
-height:40px;
-border:none;
-border-radius:12px;
+min-width:36px;
+height:36px;
+padding:0 10px;
+border:1px solid #dbe3ee;
+border-radius:10px;
 cursor:pointer;
-color:white;
+background:#ffffff;
+color:#334155;
+box-shadow:0 4px 10px rgba(15,23,42,0.06);
+transition:all .15s ease;
 }
 
 .icon-action.view{
-background:linear-gradient(135deg,#0ea5e9,#2563eb);
-box-shadow:0 10px 22px rgba(37,99,235,0.16);
+color:#2563eb;
+border-color:#bfdbfe;
 }
 
 .icon-action.edit{
-background:linear-gradient(135deg,#38bdf8,#2563eb);
-box-shadow:0 10px 22px rgba(37,99,235,0.16);
+color:#0f766e;
+border-color:#99f6e4;
 }
 
 .icon-action.delete{
-background:linear-gradient(135deg,#fb7185,#e11d48);
-box-shadow:0 10px 22px rgba(225,29,72,0.16);
+color:#be123c;
+border-color:#fecdd3;
+}
+
+.icon-action:hover{
+transform:translateY(-1px);
+box-shadow:0 8px 16px rgba(15,23,42,0.08);
+}
+
+.icon-action.view:hover{
+background:#eff6ff;
+}
+
+.icon-action.edit:hover{
+background:#ecfeff;
+}
+
+.icon-action.delete:hover{
+background:#fff1f2;
+}
+
+.icon-action i{
+font-size:13px;
 }
 
 @media (max-width: 768px){
@@ -815,6 +912,10 @@ grid-column:auto;
 .toolbar-card{
 flex-direction:column;
 align-items:flex-start;
+}
+
+.stats-grid{
+grid-template-columns:1fr 1fr;
 }
 }
 

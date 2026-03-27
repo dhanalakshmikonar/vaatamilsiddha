@@ -32,32 +32,36 @@
 <strong>Diagnosis</strong>
 <p>{{$patient->diagnosis ?: '-'}}</p>
 </div>
+<div>
+<strong>Payment Mode</strong>
+<p>{{$patient->payment_mode ?: '-'}}</p>
+</div>
 </div>
 
 <table class="detail-table">
 <tr>
-<th>Medicine</th>
+<th>Item</th>
 <th>Quantity</th>
 <th>Price</th>
 <th>Total</th>
 </tr>
 
-@forelse($patient->patientMedicines as $item)
+@forelse($billSummary['items'] as $item)
 <tr>
-<td>{{$item->medicine->name}}</td>
-<td>{{$item->quantity}}</td>
-<td>Rs {{number_format($item->unit_price, 2)}}</td>
-<td>Rs {{number_format($item->total_price, 2)}}</td>
+<td>{{$item['label']}}</td>
+<td>{{$item['quantity']}}</td>
+<td>Rs {{number_format($item['unit_price'], 2)}}</td>
+<td>Rs {{number_format($item['total'], 2)}}</td>
 </tr>
 @empty
 <tr>
-<td colspan="4">No medicines added for this patient.</td>
+<td colspan="4">No bill items added for this patient.</td>
 </tr>
 @endforelse
 </table>
 
 <div class="bill-total">
-Grand Total: Rs {{number_format($patient->total_amount, 2)}}
+Grand Total: Rs {{number_format($billSummary['grand_total'], 2)}}
 </div>
 
 </div>

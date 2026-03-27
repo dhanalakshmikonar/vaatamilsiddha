@@ -2,6 +2,41 @@
 
 @section('content')
 
+<style>
+.medicines-action-col{
+width:148px;
+}
+
+.medicines-col-mode{
+width:120px;
+white-space:nowrap;
+}
+
+.medicines-col-pharma{
+width:210px;
+}
+
+.medicines-col-expiry{
+width:120px;
+white-space:nowrap;
+}
+
+.mode-two-words{
+line-height:1.35;
+}
+
+.medicines-action-wrap{
+display:flex;
+align-items:center;
+gap:6px;
+flex-wrap:nowrap;
+}
+
+.medicines-action-wrap form{
+margin:0;
+}
+</style>
+
 <div class="page-shell">
 
 <div class="toolbar-card">
@@ -30,6 +65,10 @@
 <a href="/medicines/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Medicine
 </a>
+
+<a href="/medicines/export" class="ghost-btn">
+<i class="fa-solid fa-file-export"></i> Export Excel
+</a>
 </div>
 </div>
 
@@ -43,18 +82,19 @@
 <div class="alert-error">{{ session('error') }}</div>
 @endif
 
+<div class="table-shell">
 <table>
 
 <tr>
 <th>Name</th>
-<th>Mode</th>
-<th>Pharmaceutical</th>
-<th>Expiry</th>
+<th class="medicines-col-mode">Mode</th>
+<th class="medicines-col-pharma">Pharmaceutical</th>
+<th class="medicines-col-expiry">Expiry</th>
 <th>Available Stock</th>
 <th>Cost Price</th>
 <th>Selling Price</th>
 <th>Total Amount</th>
-<th>Action</th>
+<th class="medicines-action-col">Action</th>
 </tr>
 
 @foreach($medicines as $medicine)
@@ -62,32 +102,40 @@
 <tr>
 
 <td>{{$medicine->name}}</td>
-<td>{{$medicine->mode_of_product}}</td>
-<td>{{$medicine->pharmaceutical_name}}</td>
-<td>{{$medicine->expiry_date}}</td>
+<td class="medicines-col-mode">
+@php
+$modeWords = preg_split('/\s+/', trim((string) $medicine->mode_of_product));
+$modeChunks = $modeWords ? array_chunk(array_filter($modeWords), 2) : [];
+@endphp
+<div class="mode-two-words">
+@if(count($modeChunks))
+{!! implode('<br>', array_map(fn($chunk) => e(implode(' ', $chunk)), $modeChunks)) !!}
+@else
+-
+@endif
+</div>
+</td>
+<td class="medicines-col-pharma">{{$medicine->pharmaceutical_name}}</td>
+<td class="medicines-col-expiry">{{$medicine->expiry_date}}</td>
 <td>{{$medicine->stock}}</td>
 <td>Rs {{$medicine->cost_price ?: $medicine->cost}}</td>
 <td>Rs {{$medicine->selling_price}}</td>
 <td>Rs {{$medicine->total_amount}}</td>
 
-<td>
-<div class="table-actions">
-<a href="/medicines/{{$medicine->id}}">
-<button class="icon-action view">
+<td class="medicines-action-col">
+<div class="medicines-action-wrap">
+<a href="/medicines/{{$medicine->id}}" class="icon-action view" aria-label="View medicine">
 <i class="fa-solid fa-eye"></i>
-</button>
 </a>
 
-<a href="/medicines/{{$medicine->id}}/edit">
-<button class="icon-action edit">
+<a href="/medicines/{{$medicine->id}}/edit" class="icon-action edit" aria-label="Edit medicine">
 <i class="fa-solid fa-pen"></i>
-</button>
 </a>
 
-<form action="/medicines/{{$medicine->id}}" method="POST">
+<form action="/medicines/{{$medicine->id}}" method="POST" onsubmit="return confirm('Delete this medicine?');">
 @csrf
 @method('DELETE')
-<button class="icon-action delete">
+<button type="submit" class="icon-action delete" aria-label="Delete medicine">
 <i class="fa-solid fa-trash"></i>
 </button>
 </form>
@@ -99,6 +147,7 @@
 @endforeach
 
 </table>
+</div>
 
 </div>
 
