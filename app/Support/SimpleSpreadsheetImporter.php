@@ -7,13 +7,24 @@ use ZipArchive;
 
 class SimpleSpreadsheetImporter
 {
-    public static function parse(string $path): array
+    public static function parse(string $path, ?string $extension = null): array
     {
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extension = strtolower($extension ?: pathinfo($path, PATHINFO_EXTENSION));
 
         return match ($extension) {
             'csv' => self::parseCsv($path),
             'xlsx' => self::parseXlsx($path),
+            default => throw new RuntimeException('Only CSV and XLSX files are supported.'),
+        };
+    }
+
+    public static function parseSheets(string $path, ?string $extension = null): array
+    {
+        $extension = strtolower($extension ?: pathinfo($path, PATHINFO_EXTENSION));
+
+        return match ($extension) {
+            'csv' => ['Sheet1' => self::parseCsv($path)],
+            'xlsx' => self::parseXlsxSheets($path),
             default => throw new RuntimeException('Only CSV and XLSX files are supported.'),
         };
     }
@@ -37,6 +48,13 @@ class SimpleSpreadsheetImporter
     }
 
     private static function parseXlsx(string $path): array
+    {
+        $sheets = self::parseXlsxSheets($path);
+
+        return reset($sheets) ?: [];
+    }
+
+    private static function parseXlsxSheets(string $path): array
     {
         $zip = new ZipArchive();
 
@@ -67,51 +85,74 @@ class SimpleSpreadsheetImporter
             }
         }
 
-        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
-        $zip->close();
+        $sheetPaths = [];
 
-        if ($sheetXml === false) {
-            throw new RuntimeException('The XLSX file does not contain a readable first sheet.');
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+
+            if (preg_match('#^xl/worksheets/sheet\d+\.xml$#', $name)) {
+                $sheetPaths[] = $name;
+            }
         }
 
-        $xml = simplexml_load_string($sheetXml);
+        sort($sheetPaths, SORT_NATURAL);
 
-        if (!$xml || !isset($xml->sheetData)) {
-            throw new RuntimeException('Invalid XLSX sheet structure.');
-        }
+        $sheets = [];
 
-        $rows = [];
+        foreach ($sheetPaths as $sheetNumber => $sheetPath) {
+            $sheetXml = $zip->getFromName($sheetPath);
 
-        foreach ($xml->sheetData->row as $row) {
-            $currentRow = [];
+            if ($sheetXml === false) {
+                continue;
+            }
 
-            foreach ($row->c as $cell) {
-                $reference = (string) $cell['r'];
-                preg_match('/([A-Z]+)/', $reference, $matches);
-                $columnLetters = $matches[1] ?? 'A';
-                $columnIndex = self::columnLettersToIndex($columnLetters);
-                $type = (string) $cell['t'];
-                $value = '';
+            $xml = simplexml_load_string($sheetXml);
 
-                if ($type === 's') {
-                    $sharedIndex = (int) $cell->v;
-                    $value = $sharedStrings[$sharedIndex] ?? '';
-                } elseif ($type === 'inlineStr') {
-                    $value = trim((string) $cell->is->t);
-                } else {
-                    $value = trim((string) $cell->v);
+            if (!$xml || !isset($xml->sheetData)) {
+                continue;
+            }
+
+            $rows = [];
+
+            foreach ($xml->sheetData->row as $row) {
+                $currentRow = [];
+
+                foreach ($row->c as $cell) {
+                    $reference = (string) $cell['r'];
+                    preg_match('/([A-Z]+)/', $reference, $matches);
+                    $columnLetters = $matches[1] ?? 'A';
+                    $columnIndex = self::columnLettersToIndex($columnLetters);
+                    $type = (string) $cell['t'];
+                    $value = '';
+
+                    if ($type === 's') {
+                        $sharedIndex = (int) $cell->v;
+                        $value = $sharedStrings[$sharedIndex] ?? '';
+                    } elseif ($type === 'inlineStr') {
+                        $value = trim((string) $cell->is->t);
+                    } else {
+                        $value = trim((string) $cell->v);
+                    }
+
+                    $currentRow[$columnIndex] = $value;
                 }
 
-                $currentRow[$columnIndex] = $value;
+                if ($currentRow !== []) {
+                    ksort($currentRow);
+                    $rows[] = array_values($currentRow);
+                }
             }
 
-            if ($currentRow !== []) {
-                ksort($currentRow);
-                $rows[] = array_values($currentRow);
-            }
+            $sheets['Sheet' . ($sheetNumber + 1)] = self::removeEmptyRows($rows);
         }
 
-        return self::removeEmptyRows($rows);
+        $zip->close();
+
+        if ($sheets === []) {
+            throw new RuntimeException('The XLSX file does not contain a readable sheet.');
+        }
+
+        return $sheets;
     }
 
     private static function removeEmptyRows(array $rows): array

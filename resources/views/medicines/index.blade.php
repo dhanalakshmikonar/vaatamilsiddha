@@ -19,6 +19,14 @@
 </button>
 </form>
 
+<form method="POST" action="/medicines/import/clear" onsubmit="return confirm('Delete all imported medicine records from the inventory?');">
+@csrf
+@method('DELETE')
+<button type="submit" class="delete-btn">
+<i class="fa-solid fa-trash"></i> Delete Uploaded Data
+</button>
+</form>
+
 <a href="/medicines/create" class="btn">
 <i class="fa-solid fa-plus"></i> Add Medicine
 </a>
@@ -64,6 +72,12 @@
 
 <td>
 <div class="table-actions">
+<a href="/medicines/{{$medicine->id}}">
+<button class="icon-action view">
+<i class="fa-solid fa-eye"></i>
+</button>
+</a>
+
 <a href="/medicines/{{$medicine->id}}/edit">
 <button class="icon-action edit">
 <i class="fa-solid fa-pen"></i>

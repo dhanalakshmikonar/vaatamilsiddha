@@ -42,7 +42,7 @@ class PatientController extends Controller
         }
 
         try {
-            $rows = SimpleSpreadsheetImporter::parse($request->file('file')->getRealPath());
+            $rows = SimpleSpreadsheetImporter::parse($request->file('file')->getRealPath(), $extension);
         } catch (RuntimeException $exception) {
             return redirect('/patients')->with('error', $exception->getMessage());
         }
