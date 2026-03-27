@@ -32,8 +32,14 @@ class PatientController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,xlsx'],
+            'file' => ['required', 'file'],
         ]);
+
+        $extension = strtolower($request->file('file')->getClientOriginalExtension());
+
+        if (!in_array($extension, ['csv', 'xlsx'], true)) {
+            return redirect('/patients')->with('error', 'Only .csv and .xlsx files are supported.');
+        }
 
         try {
             $rows = SimpleSpreadsheetImporter::parse($request->file('file')->getRealPath());
