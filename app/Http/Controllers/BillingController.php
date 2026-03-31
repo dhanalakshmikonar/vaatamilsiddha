@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use App\Models\Patient;
+use App\Support\SimpleSpreadsheetExporter;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -89,43 +90,38 @@ class BillingController extends Controller
             ->latest()
             ->get();
 
-        $fileName = 'billing_export_' . now()->format('Ymd_His') . '.csv';
+        $rows = [[
+            'Patient Name',
+            'Visit Date',
+            'Phone',
+            'Diagnosis',
+            'Bill Items',
+            'Bill Amount',
+        ]];
 
-        return response()->streamDownload(function () use ($patients) {
-            $output = fopen('php://output', 'w');
-            fwrite($output, "\xEF\xBB\xBF");
+        foreach ($patients as $patient) {
+            $billSummary = $this->buildBillSummary($patient);
+            $items = collect($billSummary['items'])
+                ->map(function ($item) {
+                    return $item['label'] . ' (Rs ' . number_format((float) $item['total'], 2) . ')';
+                })
+                ->implode(' | ');
 
-            fputcsv($output, [
-                'Patient Name',
-                'Visit Date',
-                'Phone',
-                'Diagnosis',
-                'Bill Items',
-                'Bill Amount',
-            ]);
+            $rows[] = [
+                $patient->name,
+                $patient->visit_date,
+                $patient->phone,
+                $patient->diagnosis,
+                $items,
+                $billSummary['grand_total'],
+            ];
+        }
 
-            foreach ($patients as $patient) {
-                $billSummary = $this->buildBillSummary($patient);
-                $items = collect($billSummary['items'])
-                    ->map(function ($item) {
-                        return $item['label'] . ' (Rs ' . number_format((float) $item['total'], 2) . ')';
-                    })
-                    ->implode(' | ');
-
-                fputcsv($output, [
-                    $patient->name,
-                    $patient->visit_date,
-                    $patient->phone,
-                    $patient->diagnosis,
-                    $items,
-                    $billSummary['grand_total'],
-                ]);
-            }
-
-            fclose($output);
-        }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        return SimpleSpreadsheetExporter::download(
+            'billing_export_' . now()->format('Ymd_His') . '.xlsx',
+            $rows,
+            'Billing'
+        );
     }
 
     private function buildBillSummary(Patient $patient): array
@@ -163,3 +159,4 @@ class BillingController extends Controller
         ];
     }
 }
+

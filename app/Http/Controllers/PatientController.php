@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use App\Models\Patient;
+use App\Support\SimpleSpreadsheetExporter;
 use App\Support\SimpleSpreadsheetImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -106,167 +107,50 @@ class PatientController extends Controller
             ->latest()
             ->get();
 
-        $fileName = 'patients_export_' . now()->format('Ymd_His') . '.csv';
+        $rows = [[
+            'Name',
+            'Age',
+            'Gender',
+            'Phone',
+            'Place',
+            'Entity',
+            'Payment Mode',
+            'Fees',
+            'Visit Date',
+            'Diagnosis',
+            'Medicines',
+            'Total Amount',
+        ]];
 
-        return response()->streamDownload(function () use ($patients) {
-            $output = fopen('php://output', 'w');
-            fwrite($output, "\xEF\xBB\xBF");
+        foreach ($patients as $patient) {
+            $medicineSummary = $patient->patientMedicines
+                ->map(function ($item) {
+                    $medicineName = $item->medicine?->name ?: 'Unknown';
+                    return $medicineName . ' x ' . $item->quantity;
+                })
+                ->implode(', ');
 
-            fputcsv($output, [
-                'Name',
-                'Age',
-                'Gender',
-                'Phone',
-                'Place',
-                'Entity',
-                'Payment Mode',
-                'Fees',
-                'Visit Date',
-                'Diagnosis',
-                'Medicines',
-                'Total Amount',
-            ]);
+            $rows[] = [
+                $patient->name,
+                $patient->age,
+                $patient->gender,
+                $patient->phone,
+                $patient->place,
+                $patient->entity,
+                $patient->payment_mode,
+                $patient->fees,
+                $patient->visit_date,
+                $patient->diagnosis,
+                $medicineSummary,
+                $patient->total_amount,
+            ];
+        }
 
-            foreach ($patients as $patient) {
-                $medicineSummary = $patient->patientMedicines
-                    ->map(function ($item) {
-                        $medicineName = $item->medicine?->name ?: 'Unknown';
-                        return $medicineName . ' x ' . $item->quantity;
-                    })
-                    ->implode(', ');
-
-                fputcsv($output, [
-                    $patient->name,
-                    $patient->age,
-                    $patient->gender,
-                    $patient->phone,
-                    $patient->place,
-                    $patient->entity,
-                    $patient->payment_mode,
-                    $patient->fees,
-                    $patient->visit_date,
-                    $patient->diagnosis,
-                    $medicineSummary,
-                    $patient->total_amount,
-                ]);
-            }
-
-            fclose($output);
-        }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $data = $this->validatePatient($request);
-
-        DB::transaction(function () use ($data) {
-            [$items, $totalAmount] = $this->prepareMedicineItems($data);
-
-            $patient = Patient::create([
-                'name' => $data['name'],
-                'age' => $data['age'],
-                'gender' => $data['gender'],
-                'phone' => $data['phone'] ?? null,
-                'place' => $data['place'] ?? null,
-                'entity' => $data['entity'] ?? null,
-                'payment_mode' => $data['payment_mode'] ?? null,
-                'fees' => $data['fees'] ?? 0,
-                'visit_date' => $data['visit_date'],
-                'diagnosis' => $data['diagnosis'] ?? null,
-                'total_amount' => $totalAmount,
-            ]);
-
-            foreach ($items as $item) {
-                $medicine = $item['medicine'];
-                unset($item['medicine']);
-
-                $patient->patientMedicines()->create($item);
-                $medicine->decrement('stock', $item['quantity']);
-            }
-        });
-
-        return redirect('/patients');
-    }
-
-    public function edit($id)
-    {
-        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
-        $medicines = Medicine::orderBy('name')->get();
-
-        return view('patients.edit', [
-            'patient' => $patient,
-            'medicines' => $medicines,
-            'medicinesData' => $this->formatMedicinesForView($medicines),
-            'existingMedicineItems' => $this->formatExistingItemsForView($patient),
-        ]);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
-        $data = $this->validatePatient($request);
-
-        DB::transaction(function () use ($patient, $data) {
-            foreach ($patient->patientMedicines as $existingItem) {
-                if ($existingItem->medicine) {
-                    $existingItem->medicine->increment('stock', $existingItem->quantity);
-                }
-            }
-
-            [$items, $totalAmount] = $this->prepareMedicineItems($data);
-
-            $patient->update([
-                'name' => $data['name'],
-                'age' => $data['age'],
-                'gender' => $data['gender'],
-                'phone' => $data['phone'] ?? null,
-                'place' => $data['place'] ?? null,
-                'entity' => $data['entity'] ?? null,
-                'payment_mode' => $data['payment_mode'] ?? null,
-                'fees' => $data['fees'] ?? 0,
-                'visit_date' => $data['visit_date'],
-                'diagnosis' => $data['diagnosis'] ?? null,
-                'total_amount' => $totalAmount,
-            ]);
-
-            $patient->patientMedicines()->delete();
-
-            foreach ($items as $item) {
-                $medicine = $item['medicine'];
-                unset($item['medicine']);
-
-                $patient->patientMedicines()->create($item);
-                $medicine->decrement('stock', $item['quantity']);
-            }
-        });
-
-        return redirect('/patients');
-    }
-
-    public function destroy($id)
-    {
-        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
-
-        DB::transaction(function () use ($patient) {
-            foreach ($patient->patientMedicines as $item) {
-                if ($item->medicine) {
-                    $item->medicine->increment('stock', $item->quantity);
-                }
-            }
-
-            $patient->delete();
-        });
-
-        return redirect('/patients')->with('success', 'Patient deleted successfully.');
-    }
-
-    public function show($id)
-    {
-        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
-
-        return view('patients.view', compact('patient'));
+        return SimpleSpreadsheetExporter::download(
+            'patients_export_' . now()->format('Ymd_His') . '.xlsx',
+            $rows,
+            'Patients'
+        );
     }
 
     private function validatePatient(Request $request): array
@@ -359,3 +243,6 @@ class PatientController extends Controller
         return $formatted;
     }
 }
+
+
+
