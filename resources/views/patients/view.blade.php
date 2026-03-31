@@ -58,13 +58,44 @@
 </div>
 
 <div>
-<strong>Fees</strong>
+<strong>Therapy</strong>
+<p>{{ \App\Support\TherapyOptions::label($patient->therapy) ?: '-' }}</p>
+</div>
+
+<div>
+<strong>Therapy Amount</strong>
 <p>Rs {{number_format((float) $patient->fees, 2)}}</p>
+</div>
+
+<div>
+<strong>Appointment Amount</strong>
+<p>Rs {{number_format((float) $patient->appointment_amount, 2)}}</p>
+</div>
+
+<div>
+<strong>Total Amount</strong>
+<p>Rs {{number_format((float) $patient->total_amount, 2)}}</p>
 </div>
 
 <div>
 <strong>Visit Date</strong>
 <p>{{$patient->visit_date}}</p>
+</div>
+
+<div class="full">
+<strong>Patient History</strong>
+@if($patient->no_patient_history)
+<p style="margin-top:10px;color:#475569;font-weight:700;">No patient history</p>
+@else
+<div class="history-grid" style="margin-top:12px;">
+@foreach($historyFields as $key => $label)
+<div class="history-item history-item-static">
+<span class="history-select history-select-static">{{ strtoupper(($patient->patient_history[$key] ?? '-')) }}</span>
+<span>{{ $label }}</span>
+</div>
+@endforeach
+</div>
+@endif
 </div>
 
 <div class="full">
@@ -84,7 +115,7 @@
 
 @forelse($patient->patientMedicines as $item)
 <tr>
-<td>{{$item->medicine->name}}</td>
+<td>{{$item->medicine?->name ?? 'Unknown Medicine'}}</td>
 <td>{{$item->quantity}}</td>
 </tr>
 @empty

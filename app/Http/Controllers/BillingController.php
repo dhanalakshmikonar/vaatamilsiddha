@@ -5,20 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Medicine;
 use App\Models\Patient;
 use App\Support\SimpleSpreadsheetExporter;
+use App\Support\TherapyOptions;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class BillingController extends Controller
 {
-    private const THERAPY_AMOUNTS = [
-        'consultation' => 200,
-        'quarter_massage' => 800,
-        'half_back_massage' => 500,
-        'full_body_massage' => 1000,
-        'navarakili_massage' => 1000,
-        'leg_massage' => 750,
-    ];
-
     public function index()
     {
         $patients = Patient::with('patientMedicines.medicine')
@@ -40,7 +32,7 @@ class BillingController extends Controller
 
         return view('billing.create', [
             'medicines' => $medicines,
-            'therapyOptions' => self::THERAPY_AMOUNTS,
+            'therapyOptions' => TherapyOptions::all(),
         ]);
     }
 
@@ -48,7 +40,7 @@ class BillingController extends Controller
     {
         $validated = $request->validate([
             'medicine_id' => ['nullable', 'integer', 'exists:medicines,id'],
-            'therapy' => ['nullable', 'string', Rule::in(array_keys(self::THERAPY_AMOUNTS))],
+            'therapy' => ['nullable', 'string', Rule::in(TherapyOptions::keys())],
             'appointment' => ['nullable', 'numeric', 'min:0'],
         ]);
 
@@ -61,7 +53,7 @@ class BillingController extends Controller
         }
 
         $therapyKey = $validated['therapy'] ?? '';
-        $therapyAmount = (float) (self::THERAPY_AMOUNTS[$therapyKey] ?? 0);
+        $therapyAmount = TherapyOptions::amount($therapyKey);
         $appointmentAmount = (float) ($validated['appointment'] ?? 0);
         $totalAmount = $medicineAmount + $therapyAmount + $appointmentAmount;
 
@@ -140,14 +132,27 @@ class BillingController extends Controller
         }
 
         $fees = (float) ($patient->fees ?? 0);
+        $therapyLabel = TherapyOptions::label($patient->therapy);
 
         if ($fees > 0) {
             $items[] = [
-                'label' => 'Consultation / Fees',
+                'label' => $therapyLabel !== '' ? $therapyLabel : 'Consultation / Fees',
                 'quantity' => 1,
                 'unit_price' => $fees,
                 'total' => $fees,
                 'type' => 'fees',
+            ];
+        }
+
+        $appointmentAmount = (float) ($patient->appointment_amount ?? 0);
+
+        if ($appointmentAmount > 0) {
+            $items[] = [
+                'label' => 'Appointment',
+                'quantity' => 1,
+                'unit_price' => $appointmentAmount,
+                'total' => $appointmentAmount,
+                'type' => 'appointment',
             ];
         }
 
@@ -159,4 +164,3 @@ class BillingController extends Controller
         ];
     }
 }
-

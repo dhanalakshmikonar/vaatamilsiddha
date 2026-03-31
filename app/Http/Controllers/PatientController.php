@@ -6,6 +6,7 @@ use App\Models\Medicine;
 use App\Models\Patient;
 use App\Support\SimpleSpreadsheetExporter;
 use App\Support\SimpleSpreadsheetImporter;
+use App\Support\TherapyOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,8 @@ class PatientController extends Controller
         return view('patients.create', [
             'medicines' => $medicines,
             'medicinesData' => $this->formatMedicinesForView($medicines),
+            'therapyOptions' => TherapyOptions::all(),
+            'historyFields' => $this->patientHistoryFields(),
         ]);
     }
 
@@ -62,6 +65,10 @@ class PatientController extends Controller
                 continue;
             }
 
+            $therapy = $this->resolveTherapyKey($data['therapy'] ?? null);
+            $fees = TherapyOptions::amount($therapy);
+            $appointmentAmount = (float) ($data['appointment_amount'] ?? $data['appointment'] ?? 0);
+
             Patient::create([
                 'name' => trim((string) $data['name']),
                 'age' => (int) ($data['age'] ?? 0),
@@ -70,10 +77,13 @@ class PatientController extends Controller
                 'place' => trim((string) ($data['place'] ?? '')),
                 'entity' => trim((string) ($data['entity'] ?? '')),
                 'payment_mode' => trim((string) ($data['payment_mode'] ?? '')),
-                'fees' => (float) ($data['fees'] ?? 0),
+                'fees' => $fees,
+                'therapy' => $therapy,
+                'appointment_amount' => $appointmentAmount,
+                'patient_history' => $this->normalizePatientHistory([]),
                 'visit_date' => !empty($data['visit_date']) ? $data['visit_date'] : now()->toDateString(),
                 'diagnosis' => trim((string) ($data['diagnosis'] ?? '')),
-                'total_amount' => 0,
+                'total_amount' => $fees + $appointmentAmount,
             ]);
 
             $imported++;
@@ -115,7 +125,9 @@ class PatientController extends Controller
             'Place',
             'Entity',
             'Payment Mode',
-            'Fees',
+            'Therapy',
+            'Therapy Amount',
+            'Appointment Amount',
             'Visit Date',
             'Diagnosis',
             'Medicines',
@@ -138,7 +150,9 @@ class PatientController extends Controller
                 $patient->place,
                 $patient->entity,
                 $patient->payment_mode,
+                TherapyOptions::label($patient->therapy),
                 $patient->fees,
+                $patient->appointment_amount,
                 $patient->visit_date,
                 $patient->diagnosis,
                 $medicineSummary,
@@ -153,6 +167,135 @@ class PatientController extends Controller
         );
     }
 
+    public function store(Request $request)
+    {
+        $data = $this->validatePatient($request);
+
+        DB::transaction(function () use ($data) {
+            [$items, $medicineTotal] = $this->prepareMedicineItems($data);
+            $fees = TherapyOptions::amount($data['therapy'] ?? null);
+            $appointmentAmount = (float) ($data['appointment_amount'] ?? 0);
+            $totalAmount = $medicineTotal + $fees + $appointmentAmount;
+
+            $patient = Patient::create([
+                'name' => $data['name'],
+                'age' => $data['age'],
+                'gender' => $data['gender'],
+                'phone' => $data['phone'] ?? null,
+                'place' => $data['place'] ?? null,
+                'entity' => $data['entity'] ?? null,
+                'payment_mode' => $data['payment_mode'] ?? null,
+                'fees' => $fees,
+                'therapy' => $data['therapy'] ?? null,
+                'appointment_amount' => $appointmentAmount,
+                'patient_history' => $this->normalizePatientHistory($data['patient_history'] ?? []),
+                'visit_date' => $data['visit_date'],
+                'diagnosis' => $data['diagnosis'] ?? null,
+                'total_amount' => $totalAmount,
+            ]);
+
+            foreach ($items as $item) {
+                $medicine = $item['medicine'];
+                unset($item['medicine']);
+
+                $patient->patientMedicines()->create($item);
+                $medicine->decrement('stock', $item['quantity']);
+            }
+        });
+
+        return redirect('/patients');
+    }
+
+    public function edit($id)
+    {
+        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
+        $medicines = Medicine::orderBy('name')->get();
+
+        return view('patients.edit', [
+            'patient' => $patient,
+            'medicines' => $medicines,
+            'medicinesData' => $this->formatMedicinesForView($medicines),
+            'existingMedicineItems' => $this->formatExistingItemsForView($patient),
+            'therapyOptions' => TherapyOptions::all(),
+            'historyFields' => $this->patientHistoryFields(),
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
+        $data = $this->validatePatient($request);
+
+        DB::transaction(function () use ($patient, $data) {
+            foreach ($patient->patientMedicines as $existingItem) {
+                if ($existingItem->medicine) {
+                    $existingItem->medicine->increment('stock', $existingItem->quantity);
+                }
+            }
+
+            [$items, $medicineTotal] = $this->prepareMedicineItems($data);
+            $fees = TherapyOptions::amount($data['therapy'] ?? null);
+            $appointmentAmount = (float) ($data['appointment_amount'] ?? 0);
+            $totalAmount = $medicineTotal + $fees + $appointmentAmount;
+
+            $patient->update([
+                'name' => $data['name'],
+                'age' => $data['age'],
+                'gender' => $data['gender'],
+                'phone' => $data['phone'] ?? null,
+                'place' => $data['place'] ?? null,
+                'entity' => $data['entity'] ?? null,
+                'payment_mode' => $data['payment_mode'] ?? null,
+                'fees' => $fees,
+                'therapy' => $data['therapy'] ?? null,
+                'appointment_amount' => $appointmentAmount,
+                'patient_history' => $this->normalizePatientHistory($data['patient_history'] ?? []),
+                'visit_date' => $data['visit_date'],
+                'diagnosis' => $data['diagnosis'] ?? null,
+                'total_amount' => $totalAmount,
+            ]);
+
+            $patient->patientMedicines()->delete();
+
+            foreach ($items as $item) {
+                $medicine = $item['medicine'];
+                unset($item['medicine']);
+
+                $patient->patientMedicines()->create($item);
+                $medicine->decrement('stock', $item['quantity']);
+            }
+        });
+
+        return redirect('/patients');
+    }
+
+    public function destroy($id)
+    {
+        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
+
+        DB::transaction(function () use ($patient) {
+            foreach ($patient->patientMedicines as $item) {
+                if ($item->medicine) {
+                    $item->medicine->increment('stock', $item->quantity);
+                }
+            }
+
+            $patient->delete();
+        });
+
+        return redirect('/patients')->with('success', 'Patient deleted successfully.');
+    }
+
+    public function show($id)
+    {
+        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
+
+        return view('patients.view', [
+            'patient' => $patient,
+            'historyFields' => $this->patientHistoryFields(),
+        ]);
+    }
+
     private function validatePatient(Request $request): array
     {
         return $request->validate([
@@ -163,7 +306,11 @@ class PatientController extends Controller
             'place' => ['nullable', 'string', 'max:255'],
             'entity' => ['nullable', 'string', 'max:255'],
             'payment_mode' => ['nullable', 'string', 'max:100'],
-            'fees' => ['nullable', 'numeric', 'min:0'],
+            'therapy' => ['nullable', 'string', 'in:' . implode(',', TherapyOptions::keys())],
+            'appointment_amount' => ['nullable', 'numeric', 'min:0'],
+            'patient_history' => ['nullable', 'array'],
+            'no_patient_history' => ['nullable', 'boolean'],
+            'patient_history.*' => ['nullable', 'in:y,n,-'],
             'visit_date' => ['required', 'date'],
             'diagnosis' => ['nullable', 'string'],
             'medicine_id' => ['nullable', 'array'],
@@ -242,7 +389,49 @@ class PatientController extends Controller
 
         return $formatted;
     }
-}
 
+    private function resolveTherapyKey(mixed $value): ?string
+    {
+        $normalized = trim(strtolower((string) $value));
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        foreach (TherapyOptions::all() as $key => $option) {
+            $label = strtolower($option['label']);
+
+            if ($normalized === $key || $normalized === $label) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
+    private function patientHistoryFields(): array
+    {
+        return [
+            'diabetes_mellitus' => 'Diabetes mellitus',
+            'hypertension' => 'Hypertension',
+            'hypothyroidism' => 'Hypothyroidism',
+            'alcohol' => 'Alcohol',
+            'tobacco' => 'Tobacco',
+            'smoke' => 'Smoke',
+        ];
+    }
+
+    private function normalizePatientHistory(array $history): array
+    {
+        $normalized = [];
+
+        foreach (array_keys($this->patientHistoryFields()) as $field) {
+            $value = strtolower((string) ($history[$field] ?? '-'));
+            $normalized[$field] = in_array($value, ['y', 'n', '-'], true) ? $value : '-';
+        }
+
+        return $normalized;
+    }
+}
 
 

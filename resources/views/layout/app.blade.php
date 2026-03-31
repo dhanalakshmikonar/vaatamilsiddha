@@ -592,6 +592,108 @@ text-decoration:underline;
 color:#94a3b8;
 }
 
+.history-toggle{
+width:100%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+padding:14px 16px;
+border:1px solid #dbe2ea;
+border-radius:16px;
+background:#f8fafc;
+color:#0f172a;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
+}
+
+.history-toggle i{
+transition:transform .18s ease;
+}
+
+.history-panel{
+margin-top:14px;
+padding:20px;
+border:1px solid #e2e8f0;
+border-radius:18px;
+background:#fff;
+}
+
+.history-checkbox-row{
+display:inline-flex;
+align-items:center;
+gap:10px;
+margin-bottom:18px;
+font-weight:700;
+color:#334155;
+}
+
+.history-checkbox-row input{
+width:20px;
+height:20px;
+}
+
+.history-grid{
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:18px 24px;
+}
+
+.history-item{
+display:flex;
+align-items:center;
+gap:14px;
+font-size:15px;
+font-weight:700;
+color:#1f2937;
+}
+
+.history-select-wrap{
+position:relative;
+width:42px;
+height:42px;
+flex-shrink:0;
+}
+
+.history-select{
+width:42px;
+min-width:42px;
+height:42px;
+padding:0;
+border-radius:999px !important;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+font-size:16px !important;
+line-height:1;
+font-weight:800;
+background:#f5f7ff !important;
+border:1px solid #d5def1 !important;
+color:#0f172a;
+cursor:pointer;
+box-shadow:none;
+}
+
+.history-select:disabled{
+opacity:0.7;
+cursor:not-allowed;
+}
+
+.history-item-static{
+background:#f8fafc;
+padding:12px 14px;
+border-radius:16px;
+border:1px solid #e2e8f0;
+}
+
+.history-select-static{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+padding-right:0;
+font-size:16px !important;
+}
 .medicine-section{
 margin-top:30px;
 padding-top:20px;
@@ -971,3 +1073,5 @@ grid-template-columns:1fr 1fr;
 
 </body>
 </html>
+
+

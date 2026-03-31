@@ -35,12 +35,9 @@ data-amount="{{ (float) ($medicine->selling_price ?: $medicine->cost_price ?: $m
 <label>Therapy (Optional)</label>
 <select name="therapy" id="therapy" onchange="updateBillingTotal()">
 <option value="">Select Therapy</option>
-<option value="consultation" data-amount="200" {{ old('therapy') === 'consultation' ? 'selected' : '' }}>Consultation - Rs 200</option>
-<option value="quarter_massage" data-amount="800" {{ old('therapy') === 'quarter_massage' ? 'selected' : '' }}>1/4 Massage - Rs 800</option>
-<option value="half_back_massage" data-amount="500" {{ old('therapy') === 'half_back_massage' ? 'selected' : '' }}>Half Back Massage - Rs 500</option>
-<option value="full_body_massage" data-amount="1000" {{ old('therapy') === 'full_body_massage' ? 'selected' : '' }}>Full Body Massage - Rs 1000</option>
-<option value="navarakili_massage" data-amount="1000" {{ old('therapy') === 'navarakili_massage' ? 'selected' : '' }}>Navarakili Massage - Rs 1000</option>
-<option value="leg_massage" data-amount="750" {{ old('therapy') === 'leg_massage' ? 'selected' : '' }}>Leg Massage - Rs 750</option>
+@foreach($therapyOptions as $key => $option)
+<option value="{{ $key }}" data-amount="{{ $option['amount'] }}" {{ old('therapy') === $key ? 'selected' : '' }}>{{ $option['label'] }} - Rs {{ number_format((float) $option['amount'], 2) }}</option>
+@endforeach
 </select>
 </div>
 
