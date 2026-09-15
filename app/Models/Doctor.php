@@ -19,4 +19,10 @@ class Doctor extends Model
         'photo',
         'aadhar_photo',
     ];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }
+

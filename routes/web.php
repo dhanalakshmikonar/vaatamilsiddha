@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DoctorController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\PatientController;
 use App\Models\Medicine;
 use App\Models\Patient;
 use Illuminate\Support\Facades\Route;
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -21,13 +23,29 @@ Route::middleware('auth')->group(function () {
         $patients = Patient::count();
         $medicines = Medicine::count();
         $availableStock = Medicine::sum('stock');
+        $doctors = \App\Models\Doctor::count();
+        $appointments = \App\Models\Appointment::count();
+
+        $recentAppointments = \App\Models\Appointment::with(['patient', 'doctor'])
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'asc')
+            ->take(5)
+            ->get();
+
+        $recentPatients = Patient::latest()->take(5)->get();
 
         return view('dashboard', compact(
             'patients',
             'medicines',
             'availableStock',
+            'doctors',
+            'appointments',
+            'recentAppointments',
+            'recentPatients',
         ));
     });
+
+
 
     Route::post('/patients/import', [PatientController::class, 'import']);
     Route::delete('/patients/import/clear', [PatientController::class, 'clearImported']);
@@ -51,5 +69,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/doctors/{id}/edit', [DoctorController::class, 'edit']);
     Route::put('/doctors/{id}', [DoctorController::class, 'update']);
     Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
+
+    Route::resource('appointments', AppointmentController::class);
+
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+

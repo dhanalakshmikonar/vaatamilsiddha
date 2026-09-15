@@ -228,8 +228,11 @@ grid-template-columns:1fr;
 <div class="auth-shell">
 <div class="auth-panel auth-hero">
 <div class="auth-copy">
-<div class="auth-badge"><i class="fa-solid fa-leaf"></i> Vaatamilsiddha ERP</div>
-<h1>Welcome back to Vaatamil Siddha  continuing your journey to natural healing.</h1>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <img src="/images/logo.png" alt="Vaatamilsiddha Logo" style="width:52px;height:52px;object-fit:contain;background:#ffffff;border-radius:12px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+    <div class="auth-badge" style="margin:0;"><i class="fa-solid fa-leaf"></i> Vaatamilsiddha ERP</div>
+</div>
+<h1>Welcome back to Vaatamil Siddha — continuing your journey to natural healing.</h1>
 <p>Access patients, medicines, billing, and doctor records from one organized Siddha ERP workspace.</p>
 <div class="feature-list">
 <div class="feature-item"><i class="fa-solid fa-user-group"></i><div><strong>Connected workflow</strong><span>Patients, medicines, and billing stay linked clearly.</span></div></div>
@@ -241,8 +244,14 @@ grid-template-columns:1fr;
 
 <div class="auth-panel auth-card">
 <div class="auth-card-inner">
-<h2>Login</h2>
-<p>Enter your account details to continue.</p>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <img src="/images/logo.png" alt="Logo" style="width:42px;height:42px;object-fit:contain;border-radius:10px;border:1px solid #e2e8f0;padding:2px;">
+    <div>
+        <h2 style="font-size:22px;margin:0;">Clinic Login</h2>
+        <p style="margin:0;font-size:12.5px;color:#64748b;">Sign in to your practitioner workspace.</p>
+    </div>
+</div>
+
 
 @if ($errors->any())
 <div class="error-box">{{$errors->first()}}</div>
