@@ -35,6 +35,7 @@ class DoctorController extends Controller
             'clinic_address' => $data['clinic_address'] ?? null,
             'photo' => $this->storeUpload($request, 'photo'),
             'aadhar_photo' => $this->storeUpload($request, 'aadhar_photo'),
+            'signature' => $this->storeUpload($request, 'signature'),
         ]);
 
         return redirect('/doctors');
@@ -64,6 +65,7 @@ class DoctorController extends Controller
             'clinic_address' => $data['clinic_address'] ?? null,
             'photo' => $this->storeUpload($request, 'photo', $doctor->photo),
             'aadhar_photo' => $this->storeUpload($request, 'aadhar_photo', $doctor->aadhar_photo),
+            'signature' => $this->storeUpload($request, 'signature', $doctor->signature),
         ]);
 
         return redirect('/doctors');
@@ -91,6 +93,7 @@ class DoctorController extends Controller
             'clinic_address' => ['nullable', 'string'],
             'photo' => [$isUpdate ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'aadhar_photo' => [$isUpdate ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'signature' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
     }
 

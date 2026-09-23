@@ -80,6 +80,18 @@
 <a href="/{{$doctor->aadhar_photo}}" target="_blank" class="doc-link" style="margin-top:8px;">View current Aadhar photo</a>
 @endif
 </div>
+
+<div class="form-group">
+<label>Doctor Signature Image</label>
+<input type="file" name="signature" accept=".jpg,.jpeg,.png,.webp">
+@if($doctor->signature)
+<div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+    <img src="/{{$doctor->signature}}" alt="Current Signature" style="max-height:40px;max-width:120px;object-fit:contain;border:1px solid #e2e8f0;padding:2px;border-radius:4px;background:#fff;">
+    <a href="/{{$doctor->signature}}" target="_blank" class="doc-link" style="font-size:12px;">View signature</a>
+</div>
+@endif
+<span style="font-size:11.5px;color:#64748b;margin-top:2px;">Upload transparent/clean signature image (used on Certificates & Bills)</span>
+</div>
 </div>
 
 <div class="form-actions">

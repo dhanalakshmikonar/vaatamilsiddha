@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
         $availableStock = Medicine::sum('stock');
         $doctors = \App\Models\Doctor::count();
         $appointments = \App\Models\Appointment::count();
+        $certificates = \App\Models\DoctorCertificate::count();
 
         $recentAppointments = \App\Models\Appointment::with(['patient', 'doctor'])
             ->orderBy('appointment_date', 'desc')
@@ -40,6 +41,7 @@ Route::middleware('auth')->group(function () {
             'availableStock',
             'doctors',
             'appointments',
+            'certificates',
             'recentAppointments',
             'recentPatients',
         ));
@@ -71,6 +73,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
 
     Route::resource('appointments', AppointmentController::class);
+
+    Route::resource('certificates', \App\Http\Controllers\DoctorCertificateController::class);
+    Route::get('/doctor-certifications', function () {
+        return redirect('/certificates');
+    });
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

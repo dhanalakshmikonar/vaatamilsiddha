@@ -73,6 +73,12 @@
 <label>Aadhar Card Photo</label>
 <input type="file" name="aadhar_photo" accept=".jpg,.jpeg,.png,.webp" required>
 </div>
+
+<div class="form-group">
+<label>Doctor Signature Image</label>
+<input type="file" name="signature" accept=".jpg,.jpeg,.png,.webp">
+<span style="font-size:11.5px;color:#64748b;margin-top:2px;">Upload transparent/clean signature image (used on Certificates & Bills)</span>
+</div>
 </div>
 
 <div class="form-actions">

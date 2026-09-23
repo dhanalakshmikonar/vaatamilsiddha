@@ -29,6 +29,10 @@
 </li>
 
 <li>
+<a href="/certificates"><i class="fa-solid fa-stamp"></i> Doctor Certification</a>
+</li>
+
+<li>
 <a href="/billing"><i class="fa-solid fa-file-invoice-dollar"></i> Billing</a>
 </li>
 

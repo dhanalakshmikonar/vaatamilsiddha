@@ -18,11 +18,17 @@ class Doctor extends Model
         'clinic_address',
         'photo',
         'aadhar_photo',
+        'signature',
     ];
 
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(DoctorCertificate::class);
     }
 }
 

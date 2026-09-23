@@ -1073,6 +1073,12 @@
                             <span>Doctors</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/certificates" class="{{ request()->is('certificates*') || request()->is('doctor-certifications*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-stamp"></i>
+                            <span>Doctor Certification</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="nav-section-label">Pharmacy & Billing</div>

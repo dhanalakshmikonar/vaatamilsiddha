@@ -380,10 +380,22 @@
                 For questions regarding this bill or your prescription dosage, please contact our front desk.
             </div>
 
+            @php
+                $doctorSignatory = \App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->first() ?? \App\Models\Doctor::first();
+                $signatureImg = ($doctorSignatory && !empty($doctorSignatory->signature) && file_exists(public_path($doctorSignatory->signature)))
+                    ? '/' . $doctorSignatory->signature
+                    : '/images/doctor_signature.jpg';
+            @endphp
             <div class="signature-area">
+                <img src="{{ $signatureImg }}" alt="Authorised Signature" style="max-height: 52px; max-width: 170px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply;">
                 <div class="signature-line">
-                    Authorized Signatory / Doctor
+                    Authorised Signature
                 </div>
+                @if($doctorSignatory)
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                        Dr. {{ $doctorSignatory->name }}
+                    </div>
+                @endif
             </div>
         </div>
 

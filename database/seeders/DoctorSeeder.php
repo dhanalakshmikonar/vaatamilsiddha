@@ -20,6 +20,7 @@ class DoctorSeeder extends Seeder
                 'phone' => '9876543210',
                 'experience' => 12,
                 'clinic_address' => 'Vaatamilsiddha Clinic, Main Branch',
+                'signature' => 'uploads/doctors/doctor_signature.jpg',
             ]
         );
     }

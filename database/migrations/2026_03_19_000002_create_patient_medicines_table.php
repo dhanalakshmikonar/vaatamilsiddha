@@ -8,15 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('patient_medicines', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('medicine_id')->constrained()->restrictOnDelete();
-            $table->integer('quantity');
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_price', 10, 2);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('patient_medicines')) {
+            Schema::create('patient_medicines', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
+                $table->foreignId('medicine_id')->constrained()->restrictOnDelete();
+                $table->integer('quantity');
+                $table->decimal('unit_price', 10, 2);
+                $table->decimal('total_price', 10, 2);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
