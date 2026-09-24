@@ -236,6 +236,7 @@
 
         .patient-meta-grid,
         .total-calculation-box,
+        .meta-box.full-width div,
         .invoice-table th {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
@@ -306,13 +307,25 @@
                 <strong>{{ $patient->place ?: '-' }}</strong>
             </div>
             <div class="meta-box">
-                <span>Diagnosis / Complaint</span>
-                <strong>{{ $patient->diagnosis ?: 'General Consultation' }}</strong>
-            </div>
-            <div class="meta-box">
                 <span>Payment Mode</span>
                 <strong>{{ $patient->payment_mode ?: 'Cash / Direct' }}</strong>
             </div>
+            <div class="meta-box">
+                <span>Visit Date</span>
+                <strong>{{ $patient->visit_date ? \Carbon\Carbon::parse($patient->visit_date)->format('d M Y') : date('d M Y') }}</strong>
+            </div>
+
+            <!-- Full Width Diagnosis Section -->
+            @if($patient->diagnosis)
+            <div class="meta-box full-width" style="grid-column: 1 / -1; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 2px;">
+                <span style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                    <i class="fa-solid fa-notes-medical" style="color:#0f766e;"></i> Diagnosis / Clinical Assessment
+                </span>
+                <div style="font-size: 13.5px; font-weight: 600; color: #1e293b; line-height: 1.65; white-space: pre-line; word-break: break-word; background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    {{ $patient->diagnosis }}
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Itemized Table -->
