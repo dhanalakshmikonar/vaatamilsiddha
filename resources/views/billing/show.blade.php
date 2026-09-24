@@ -394,19 +394,41 @@
             </div>
 
             @php
-                $doctorSignatory = \App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->first() ?? \App\Models\Doctor::first();
-                $signatureImg = ($doctorSignatory && !empty($doctorSignatory->signature) && file_exists(public_path($doctorSignatory->signature)))
-                    ? '/' . $doctorSignatory->signature
-                    : '/images/doctor_signature.jpg';
+                // Fetch doctor with uploaded signature from Doctor tab or patient's appointment
+                $appointmentDoc = $patient->appointments()->with('doctor')->latest()->first()?->doctor;
+                $doctorSignatory = ($appointmentDoc && !empty($appointmentDoc->signature)) 
+                    ? $appointmentDoc 
+                    : (\App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->latest()->first() ?? \App\Models\Doctor::first());
+
+                $billingSigImg = null;
+                if ($doctorSignatory && !empty($doctorSignatory->signature)) {
+                    $cleanPath = ltrim($doctorSignatory->signature, '/\\');
+                    $billingSigImg = '/' . $cleanPath;
+                }
+
+                if (!$billingSigImg || !file_exists(public_path(ltrim($billingSigImg, '/\\')))) {
+                    if (file_exists(public_path('images/doctor_signature.jpg'))) {
+                        $billingSigImg = '/images/doctor_signature.jpg';
+                    } elseif (file_exists(public_path('uploads/doctors/doctor_signature.jpg'))) {
+                        $billingSigImg = '/uploads/doctors/doctor_signature.jpg';
+                    }
+                }
             @endphp
             <div class="signature-area">
-                <img src="{{ $signatureImg }}" alt="Authorised Signature" style="max-height: 52px; max-width: 170px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply;">
+                @if($billingSigImg)
+                    <img src="{{ $billingSigImg }}" alt="Authorised Signature" style="max-height: 52px; max-width: 170px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply;">
+                @else
+                    <div style="height: 48px;"></div>
+                @endif
                 <div class="signature-line">
                     Authorised Signature
                 </div>
                 @if($doctorSignatory)
                     <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                         Dr. {{ $doctorSignatory->name }}
+                        @if($doctorSignatory->qualification)
+                            ({{ $doctorSignatory->qualification }})
+                        @endif
                     </div>
                 @endif
             </div>

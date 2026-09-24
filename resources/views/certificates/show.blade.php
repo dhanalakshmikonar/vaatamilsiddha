@@ -372,13 +372,35 @@
 
             <!-- Signature Section: Shows Authorised Signature + Uploaded Doctor Signature Image -->
             @php
-                $certDoc = $certificate->doctor;
-                $certSigImg = ($certDoc && !empty($certDoc->signature) && file_exists(public_path($certDoc->signature)))
-                    ? '/' . $certDoc->signature
-                    : '/images/doctor_signature.jpg';
+                $certDoc = $certificate->doctor ?? \App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->latest()->first();
+                $certSigImg = null;
+
+                if ($certDoc && !empty($certDoc->signature)) {
+                    $cleanPath = ltrim($certDoc->signature, '/\\');
+                    $certSigImg = '/' . $cleanPath;
+                }
+
+                if (!$certSigImg || !file_exists(public_path(ltrim($certSigImg, '/\\')))) {
+                    $fallbackDoc = \App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->latest()->first();
+                    if ($fallbackDoc && !empty($fallbackDoc->signature)) {
+                        $certSigImg = '/' . ltrim($fallbackDoc->signature, '/\\');
+                    }
+                }
+
+                if (!$certSigImg || !file_exists(public_path(ltrim($certSigImg, '/\\')))) {
+                    if (file_exists(public_path('images/doctor_signature.jpg'))) {
+                        $certSigImg = '/images/doctor_signature.jpg';
+                    } elseif (file_exists(public_path('uploads/doctors/doctor_signature.jpg'))) {
+                        $certSigImg = '/uploads/doctors/doctor_signature.jpg';
+                    }
+                }
             @endphp
             <div class="signature-area">
-                <img src="{{ $certSigImg }}" alt="Authorised Signature" style="max-height: 52px; max-width: 170px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply;">
+                @if($certSigImg)
+                    <img src="{{ $certSigImg }}" alt="Authorised Signature" style="max-height: 52px; max-width: 170px; object-fit: contain; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply;">
+                @else
+                    <div style="height: 48px;"></div>
+                @endif
                 <div class="signature-line">
                     Authorised Signature
                 </div>
