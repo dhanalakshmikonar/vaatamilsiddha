@@ -200,7 +200,7 @@
                     </div>
                 </div>
 
-                <div class="doc-attachment-box">
+                <div class="doc-attachment-box" style="flex-wrap:wrap;">
                     <div class="doc-attachment-item">
                         <span><i class="fa-regular fa-image" style="color:#0d9488;"></i> Profile Photo</span>
                         @if($doctor->photo)
@@ -211,9 +211,18 @@
                     </div>
 
                     <div class="doc-attachment-item">
-                        <span><i class="fa-regular fa-id-card" style="color:#d97706;"></i> Aadhar Card</span>
+                        <span><i class="fa-regular fa-id-card" style="color:#d97706;"></i> Aadhar Document</span>
                         @if($doctor->aadhar_photo)
                             <a href="/{{ $doctor->aadhar_photo }}" target="_blank" style="font-weight:700;color:var(--accent);font-size:11px;">View</a>
+                        @else
+                            <span style="color:#94a3b8;font-size:11px;">None</span>
+                        @endif
+                    </div>
+
+                    <div class="doc-attachment-item">
+                        <span><i class="fa-solid fa-signature" style="color:#0f766e;"></i> Signature</span>
+                        @if($doctor->signature)
+                            <a href="/{{ $doctor->signature }}" target="_blank" style="font-weight:700;color:#0f766e;font-size:11px;">View</a>
                         @else
                             <span style="color:#94a3b8;font-size:11px;">None</span>
                         @endif

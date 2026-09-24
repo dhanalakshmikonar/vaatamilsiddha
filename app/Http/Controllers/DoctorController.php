@@ -91,20 +91,27 @@ class DoctorController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'experience' => ['required', 'integer', 'min:0'],
             'clinic_address' => ['nullable', 'string'],
-            'photo' => [$isUpdate ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'aadhar_photo' => [$isUpdate ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'signature' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'aadhar_photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'signature' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+        ], [
+            'photo.max' => 'The doctor photo must not exceed 10MB.',
+            'aadhar_photo.max' => 'The Aadhar card document must not exceed 10MB.',
+            'aadhar_photo.mimes' => 'The Aadhar card document must be a file of type: JPG, JPEG, PNG, WEBP, or PDF.',
+            'signature.max' => 'The signature image must not exceed 10MB.',
         ]);
     }
 
     private function storeUpload(Request $request, string $field, ?string $existingPath = null): ?string
     {
-        if (!$request->hasFile($field)) {
+        if (!$request->hasFile($field) || !$request->file($field)->isValid()) {
             return $existingPath;
         }
 
         $file = $request->file($field);
-        $filename = time() . '_' . $field . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
+        $safeBase = preg_replace('/[^A-Za-z0-9_\-]/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $filename = time() . '_' . $field . '_' . substr($safeBase, 0, 30) . '.' . $extension;
         $destination = public_path('uploads/doctors');
 
         if (!is_dir($destination)) {
