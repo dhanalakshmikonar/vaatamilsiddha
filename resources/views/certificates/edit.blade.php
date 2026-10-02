@@ -36,7 +36,7 @@
             <!-- Patient Selection -->
             <div class="form-group full">
                 <label for="patient_id">Select Patient <span style="color:#ef4444;">*</span></label>
-                <select name="patient_id" id="patient_id" required>
+                <select name="patient_id" id="patient_id" required class="@error('patient_id') is-invalid @enderror">
                     <option value="">-- Choose Existing Patient --</option>
                     @foreach($patients as $patient)
                         <option value="{{ $patient->id }}" 
@@ -45,45 +45,63 @@
                         </option>
                     @endforeach
                 </select>
+                @error('patient_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Diagnosis -->
             <div class="form-group full">
                 <label for="diagnosis">Diagnosis / Medical Condition <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="diagnosis" id="diagnosis" value="{{ old('diagnosis', $certificate->diagnosis) }}" required>
+                <input type="text" name="diagnosis" id="diagnosis" value="{{ old('diagnosis', $certificate->diagnosis) }}" maxlength="500" required class="@error('diagnosis') is-invalid @enderror">
+                @error('diagnosis')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Issue Date -->
             <div class="form-group">
                 <label for="date">Certificate Issue Date <span style="color:#ef4444;">*</span></label>
-                <input type="date" name="date" id="date" value="{{ old('date', $certificate->date ? $certificate->date->format('Y-m-d') : '') }}" required>
+                <input type="date" name="date" id="date" value="{{ old('date', $certificate->date ? $certificate->date->format('Y-m-d') : '') }}" required class="@error('date') is-invalid @enderror">
+                @error('date')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Certificate Type -->
             <div class="form-group">
                 <label for="certificate_type">Certificate Type <span style="color:#ef4444;">*</span></label>
-                <select name="certificate_type" id="certificate_type" required>
+                <select name="certificate_type" id="certificate_type" required class="@error('certificate_type') is-invalid @enderror">
                     <option value="Corporate" {{ old('certificate_type', $certificate->certificate_type) === 'Corporate' ? 'selected' : '' }}>Corporate (Workplace / Office)</option>
                     <option value="School" {{ old('certificate_type', $certificate->certificate_type) === 'School' ? 'selected' : '' }}>School (School / College / Student)</option>
                 </select>
+                @error('certificate_type')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Leave From -->
             <div class="form-group">
                 <label for="leave_from">Leave Recommended From <span style="color:#ef4444;">*</span></label>
-                <input type="date" name="leave_from" id="leave_from" value="{{ old('leave_from', $certificate->leave_from ? $certificate->leave_from->format('Y-m-d') : '') }}" required onchange="updateLeaveToMin()">
+                <input type="date" name="leave_from" id="leave_from" value="{{ old('leave_from', $certificate->leave_from ? $certificate->leave_from->format('Y-m-d') : '') }}" required onchange="updateLeaveToMin()" class="@error('leave_from') is-invalid @enderror">
+                @error('leave_from')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Leave To -->
             <div class="form-group">
                 <label for="leave_to">Leave Recommended To <span style="color:#ef4444;">*</span></label>
-                <input type="date" name="leave_to" id="leave_to" value="{{ old('leave_to', $certificate->leave_to ? $certificate->leave_to->format('Y-m-d') : '') }}" required>
+                <input type="date" name="leave_to" id="leave_to" value="{{ old('leave_to', $certificate->leave_to ? $certificate->leave_to->format('Y-m-d') : '') }}" required class="@error('leave_to') is-invalid @enderror">
+                @error('leave_to')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Attending Doctor -->
             <div class="form-group full">
                 <label for="doctor_id">Attending Doctor <span style="color:#ef4444;">*</span></label>
-                <select name="doctor_id" id="doctor_id" required>
+                <select name="doctor_id" id="doctor_id" required class="@error('doctor_id') is-invalid @enderror">
                     <option value="">-- Choose Existing Doctor --</option>
                     @foreach($doctors as $doctor)
                         <option value="{{ $doctor->id }}" {{ (old('doctor_id', $certificate->doctor_id) == $doctor->id) ? 'selected' : '' }}>
@@ -91,12 +109,18 @@
                         </option>
                     @endforeach
                 </select>
+                @error('doctor_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Doctor Description -->
             <div class="form-group full">
                 <label for="doctor_description">Doctor's Description / Medical Advice & Recommendation <span style="color:#ef4444;">*</span></label>
-                <textarea name="doctor_description" id="doctor_description" rows="5" required>{{ old('doctor_description', $certificate->doctor_description) }}</textarea>
+                <textarea name="doctor_description" id="doctor_description" rows="5" maxlength="3000" required class="@error('doctor_description') is-invalid @enderror">{{ old('doctor_description', $certificate->doctor_description) }}</textarea>
+                @error('doctor_description')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
         </div>

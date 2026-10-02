@@ -140,6 +140,12 @@
         align-items: center;
         justify-content: space-between;
     }
+    @media (max-width: 640px) {
+        .doctor-grid-modern { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+        .doctor-card-modern { min-width: 0; padding: 17px; }
+        .doctor-card-modern table { min-width: 0; }
+        .doctor-card-modern td, .doctor-card-modern th { overflow-wrap: anywhere; }
+    }
 </style>
 
 <div class="page-shell">

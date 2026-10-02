@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Patient extends Model
 {
     protected $fillable = [
+        'doctor_id',
         'name',
         'age',
         'gender',
@@ -28,6 +29,11 @@ class Patient extends Model
         'patient_history' => 'array',
         'no_patient_history' => 'boolean',
     ];
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
 
     public function patientMedicines()
     {

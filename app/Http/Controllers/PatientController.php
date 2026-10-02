@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Medicine;
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Support\SimpleSpreadsheetExporter;
 use App\Support\SimpleSpreadsheetImporter;
@@ -24,9 +25,11 @@ class PatientController extends Controller
     public function create()
     {
         $medicines = Medicine::orderBy('name')->get();
+        $doctors = Doctor::orderBy('name')->get();
 
         return view('patients.create', [
             'medicines' => $medicines,
+            'doctors' => $doctors,
             'medicinesData' => $this->formatMedicinesForView($medicines),
             'therapyOptions' => TherapyOptions::all(),
             'historyFields' => $this->patientHistoryFields(),
@@ -179,6 +182,7 @@ class PatientController extends Controller
 
             $patient = Patient::create([
                 'name' => $data['name'],
+                'doctor_id' => $data['doctor_id'] ?? null,
                 'age' => $data['age'],
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? null,
@@ -210,9 +214,11 @@ class PatientController extends Controller
     {
         $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
         $medicines = Medicine::orderBy('name')->get();
+        $doctors = Doctor::orderBy('name')->get();
 
         return view('patients.edit', [
             'patient' => $patient,
+            'doctors' => $doctors,
             'medicines' => $medicines,
             'medicinesData' => $this->formatMedicinesForView($medicines),
             'existingMedicineItems' => $this->formatExistingItemsForView($patient),
@@ -240,6 +246,7 @@ class PatientController extends Controller
 
             $patient->update([
                 'name' => $data['name'],
+                'doctor_id' => $data['doctor_id'] ?? null,
                 'age' => $data['age'],
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? null,
@@ -299,24 +306,50 @@ class PatientController extends Controller
     private function validatePatient(Request $request): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'age' => ['required', 'integer', 'min:0'],
-            'gender' => ['required', 'string', 'max:50'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'place' => ['nullable', 'string', 'max:255'],
-            'entity' => ['nullable', 'string', 'max:255'],
-            'payment_mode' => ['nullable', 'string', 'max:100'],
+            'doctor_id' => ['nullable', 'integer', 'exists:doctors,id'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'age' => ['required', 'integer', 'min:0', 'max:120'],
+            'gender' => ['required', 'string', 'in:Male,Female,Other'],
+            'phone' => ['nullable', 'string', 'regex:/^[6-9]\d{9}$/'],
+            'place' => ['nullable', 'string', 'max:255', 'regex:/^[\pL0-9\s,.\-#\/()\'":;]+$/u'],
+            'entity' => ['nullable', 'string', 'max:255', 'regex:/^[\pL0-9\s,.\-#\/()\'":;]+$/u'],
+            'payment_mode' => ['nullable', 'string', 'max:100', 'regex:/^[\pL0-9\s,.\-#\/()]+$/u'],
             'therapy' => ['nullable', 'string', 'in:' . implode(',', TherapyOptions::keys())],
-            'appointment_amount' => ['nullable', 'numeric', 'min:0'],
+            'appointment_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99', 'regex:/^\d+(\.\d{1,2})?$/'],
             'patient_history' => ['nullable', 'array'],
             'no_patient_history' => ['nullable', 'boolean'],
             'patient_history.*' => ['nullable', 'in:y,n,-'],
-            'visit_date' => ['required', 'date'],
-            'diagnosis' => ['nullable', 'string'],
+            'visit_date' => ['required', 'date', 'date_format:Y-m-d'],
+            'diagnosis' => ['nullable', 'string', 'max:2000', 'regex:/^[\pL0-9\s,.\-#\/()\'":;%&+=!?\r\n\t]+$/u'],
             'medicine_id' => ['nullable', 'array'],
             'medicine_id.*' => ['nullable', 'integer', 'exists:medicines,id'],
             'quantity' => ['nullable', 'array'],
-            'quantity.*' => ['nullable', 'integer', 'min:1'],
+            'quantity.*' => ['nullable', 'integer', 'min:1', 'max:10000'],
+        ], [
+            'name.required' => 'The patient name is required.',
+            'name.regex' => 'The patient name may only contain alphabets and spaces.',
+            'age.required' => 'The age is required.',
+            'age.integer' => 'The age must be a whole number.',
+            'age.min' => 'The age must be between 0 and 120.',
+            'age.max' => 'The age must be between 0 and 120.',
+            'gender.required' => 'Please select a gender.',
+            'gender.in' => 'The selected gender is invalid.',
+            'phone.regex' => 'The phone number must be exactly 10 digits starting with 6, 7, 8, or 9.',
+            'place.regex' => 'The place contains invalid characters.',
+            'entity.regex' => 'The entity contains invalid characters.',
+            'payment_mode.regex' => 'The payment mode contains invalid characters.',
+            'therapy.in' => 'The selected therapy procedure is invalid.',
+            'appointment_amount.numeric' => 'The consultation fee must be a valid number.',
+            'appointment_amount.min' => 'The consultation fee cannot be negative.',
+            'appointment_amount.regex' => 'The consultation fee may have at most 2 decimal places.',
+            'visit_date.required' => 'The visit date is required.',
+            'visit_date.date' => 'The visit date must be a valid date.',
+            'visit_date.date_format' => 'The visit date format must be YYYY-MM-DD.',
+            'diagnosis.regex' => 'The diagnosis contains invalid characters.',
+            'diagnosis.max' => 'The diagnosis must not exceed 2000 characters.',
+            'medicine_id.*.exists' => 'The selected medicine does not exist.',
+            'quantity.*.integer' => 'The quantity must be a whole number.',
+            'quantity.*.min' => 'The medicine quantity must be at least 1.',
         ]);
     }
 

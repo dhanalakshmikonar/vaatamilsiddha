@@ -180,6 +180,19 @@ background:transparent;
 font-size:15px;
 color:#0f172a;
 }
+.input-wrap.has-error{
+border-color:#ef4444;
+background:#fef2f2;
+}
+.field-error{
+color:#dc2626;
+font-size:12px;
+font-weight:600;
+display:flex;
+align-items:center;
+gap:4px;
+margin-top:2px;
+}
 .auth-btn{
 border:none;
 padding:15px 22px;
@@ -217,6 +230,18 @@ grid-template-columns:1fr;
 font-size:34px;
 }
 }
+@media (max-width: 640px){
+html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;}
+body{min-height:100dvh;height:auto;align-items:flex-start;padding:12px;overflow:visible;}
+.auth-shell{height:auto;min-height:calc(100dvh - 24px);overflow:visible;border-radius:20px;}
+.auth-hero{display:none;}
+.auth-panel{padding:20px 16px;overflow:visible;}
+.auth-card-inner{width:100%;}
+.auth-card h2{font-size:24px;}
+.auth-form{gap:14px;}
+.auth-form input,.auth-form select,.auth-form button{max-width:100%;}
+.form-grid{grid-template-columns:minmax(0,1fr);}
+}
 </style>
 </head>
 <body>
@@ -239,42 +264,47 @@ font-size:34px;
 <h2>Register</h2>
 <p>Create a new ERP user account.</p>
 
-@if ($errors->any())
-<div class="error-box">{{$errors->first()}}</div>
-@endif
-
-<form method="POST" action="/register" class="auth-form">
+<form method="POST" action="/register" class="auth-form" novalidate>
 @csrf
 <div class="form-grid">
 <div class="input-group full">
-<label>Full Name</label>
-<div class="input-wrap">
+<label for="name">Full Name</label>
+<div class="input-wrap @error('name') has-error @enderror">
 <i class="fa-solid fa-user"></i>
-<input type="text" name="name" value="{{old('name')}}" placeholder="Enter full name" required>
+<input type="text" id="name" name="name" value="{{old('name')}}" placeholder="Enter full name (alphabets & spaces)" required pattern="^[A-Za-z\s]+$" title="Only alphabets and spaces are allowed" maxlength="255">
 </div>
+@error('name')
+<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+@enderror
 </div>
 
 <div class="input-group full">
-<label>Email Address</label>
-<div class="input-wrap">
+<label for="email">Email Address</label>
+<div class="input-wrap @error('email') has-error @enderror">
 <i class="fa-solid fa-envelope"></i>
-<input type="email" name="email" value="{{old('email')}}" placeholder="staff@vaatamilsiddha.com" required>
+<input type="email" id="email" name="email" value="{{old('email')}}" placeholder="staff@vaatamilsiddha.com" required maxlength="255">
 </div>
+@error('email')
+<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+@enderror
 </div>
 
 <div class="input-group">
-<label>Password</label>
-<div class="input-wrap">
+<label for="password">Password</label>
+<div class="input-wrap @error('password') has-error @enderror">
 <i class="fa-solid fa-lock"></i>
-<input type="password" name="password" placeholder="Minimum 6 characters" required>
+<input type="password" id="password" name="password" placeholder="Minimum 6 characters" minlength="6" maxlength="255" required>
 </div>
+@error('password')
+<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+@enderror
 </div>
 
 <div class="input-group">
-<label>Confirm Password</label>
+<label for="password_confirmation">Confirm Password</label>
 <div class="input-wrap">
 <i class="fa-solid fa-shield-halved"></i>
-<input type="password" name="password_confirmation" placeholder="Repeat password" required>
+<input type="password" id="password_confirmation" name="password_confirmation" placeholder="Repeat password" minlength="6" maxlength="255" required>
 </div>
 </div>
 </div>

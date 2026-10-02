@@ -99,6 +99,11 @@
         border-color: #cbd5e1;
     }
 
+    a.stat-card-modern {
+        color: inherit;
+        text-decoration: none;
+    }
+
     .stat-info .stat-label {
         font-size: 12px;
         font-weight: 700;
@@ -246,6 +251,28 @@
         .dashboard-preview-grid { grid-template-columns: 1fr; }
         .dashboard-welcome { flex-direction: column; align-items: flex-start; gap: 16px; }
     }
+    @media (max-width: 640px) {
+        .dashboard-welcome { padding: 20px; border-radius: 18px; }
+        .dashboard-welcome > div:first-child { align-items: flex-start !important; gap: 12px !important; }
+        .dashboard-welcome > div:first-child img { width: 48px !important; height: 48px !important; }
+        .welcome-text h2 { font-size: 23px; line-height: 1.2; }
+        .welcome-text p { font-size: 13px; line-height: 1.55; }
+        .welcome-cta { width: 100%; flex-wrap: wrap; }
+        .welcome-cta > * { flex: 1 1 auto; }
+        .stats-container { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .stat-card-modern { min-width: 0; padding: 14px; gap: 8px; }
+        .stat-info { min-width: 0; }
+        .stat-info .stat-label { font-size: 11px; }
+        .stat-info .stat-value { font-size: 22px !important; overflow-wrap: anywhere; }
+        .stat-trend { font-size: 10px; line-height: 1.35; }
+        .stat-icon-wrap { width: 34px; height: 34px; flex: 0 0 34px; }
+        .quick-launch-grid { grid-template-columns: 1fr; gap: 10px; }
+        .dashboard-preview-grid { gap: 14px; }
+    }
+    @media (max-width: 380px) {
+        .stats-container { grid-template-columns: 1fr; }
+        .dashboard-welcome { padding: 16px; }
+    }
 </style>
 
 <!-- Welcome Banner -->
@@ -268,7 +295,7 @@
 </div>
 
 
-<!-- 5 Stat Metric Cards -->
+<!-- Clinic and income summary cards -->
 <div class="stats-container">
 
     <div class="stat-card-modern">
@@ -325,6 +352,24 @@
             <i class="fa-solid fa-stethoscope"></i>
         </div>
     </div>
+
+    <a href="/income/daily" class="stat-card-modern">
+        <div class="stat-info">
+            <span class="stat-label">Today's Income</span>
+            <div class="stat-value" style="font-size:28px;">Rs {{ number_format($todayIncome ?? 0, 2) }}</div>
+            <div class="stat-trend"><i class="fa-solid fa-arrow-up-right-from-square"></i> {{ $todayIncomePatients ?? 0 }} patient visits · Daily report</div>
+        </div>
+        <div class="stat-icon-wrap teal"><i class="fa-solid fa-calendar-day"></i></div>
+    </a>
+
+    <a href="/income/monthly" class="stat-card-modern">
+        <div class="stat-info">
+            <span class="stat-label">This Month's Income</span>
+            <div class="stat-value" style="font-size:28px;">Rs {{ number_format($monthIncome ?? 0, 2) }}</div>
+            <div class="stat-trend"><i class="fa-solid fa-arrow-up-right-from-square"></i> {{ $monthIncomePatients ?? 0 }} patient visits · Monthly report</div>
+        </div>
+        <div class="stat-icon-wrap emerald"><i class="fa-solid fa-chart-line"></i></div>
+    </a>
 
 </div>
 

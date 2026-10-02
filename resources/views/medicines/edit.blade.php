@@ -32,22 +32,34 @@
 
             <div class="form-group">
                 <label for="name">Medicine Name <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="name" id="name" value="{{ old('name', $medicine->name) }}" required placeholder="e.g. Nilavembu Kudineer Choornam">
+                <input type="text" name="name" id="name" value="{{ old('name', $medicine->name) }}" required maxlength="255" placeholder="e.g. Nilavembu Kudineer Choornam" class="@error('name') is-invalid @enderror">
+                @error('name')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="mode_of_product">Mode of Product / Dosage Form</label>
-                <input type="text" name="mode_of_product" id="mode_of_product" value="{{ old('mode_of_product', $medicine->mode_of_product) }}" placeholder="e.g. Choornam / Thailam / Tablet / Syrup">
+                <input type="text" name="mode_of_product" id="mode_of_product" value="{{ old('mode_of_product', $medicine->mode_of_product) }}" maxlength="255" placeholder="e.g. Choornam / Thailam / Tablet / Syrup" class="@error('mode_of_product') is-invalid @enderror">
+                @error('mode_of_product')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="pharmaceutical_name">Pharmaceutical Manufacturer</label>
-                <input type="text" name="pharmaceutical_name" id="pharmaceutical_name" value="{{ old('pharmaceutical_name', $medicine->pharmaceutical_name) }}" placeholder="e.g. SKM Siddha / Impcops">
+                <input type="text" name="pharmaceutical_name" id="pharmaceutical_name" value="{{ old('pharmaceutical_name', $medicine->pharmaceutical_name) }}" maxlength="255" placeholder="e.g. SKM Siddha / Impcops" class="@error('pharmaceutical_name') is-invalid @enderror">
+                @error('pharmaceutical_name')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="expiry_date">Expiry Date</label>
-                <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', $medicine->expiry_date) }}">
+                <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', $medicine->expiry_date) }}" class="@error('expiry_date') is-invalid @enderror">
+                @error('expiry_date')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-section-title">
@@ -56,12 +68,18 @@
 
             <div class="form-group">
                 <label for="stock">Stock Quantity (Units) <span style="color:#ef4444;">*</span></label>
-                <input type="number" name="stock" id="stock" min="0" value="{{ old('stock', $medicine->stock) }}" required oninput="calculateMedicineValues()" placeholder="Available stock count">
+                <input type="number" name="stock" id="stock" min="0" max="1000000" step="1" value="{{ old('stock', $medicine->stock) }}" required oninput="calculateMedicineValues()" placeholder="Available stock count" class="@error('stock') is-invalid @enderror">
+                @error('stock')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="cost_price">Cost Price (Rs per unit) <span style="color:#ef4444;">*</span></label>
-                <input type="number" step="0.01" min="0" name="cost_price" id="cost_price" value="{{ old('cost_price', $medicine->cost_price ?: $medicine->cost) }}" required oninput="calculateMedicineValues()" placeholder="Purchase cost">
+                <input type="number" step="0.01" min="0.01" max="999999.99" name="cost_price" id="cost_price" value="{{ old('cost_price', $medicine->cost_price ?: $medicine->cost) }}" required oninput="calculateMedicineValues()" placeholder="Purchase cost" class="@error('cost_price') is-invalid @enderror">
+                @error('cost_price')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">

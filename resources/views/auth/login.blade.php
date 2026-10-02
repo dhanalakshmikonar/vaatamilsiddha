@@ -172,6 +172,19 @@ background:transparent;
 font-size:15px;
 color:#0f172a;
 }
+.input-wrap.has-error{
+border-color:#ef4444;
+background:#fef2f2;
+}
+.field-error{
+color:#dc2626;
+font-size:12px;
+font-weight:600;
+display:flex;
+align-items:center;
+gap:4px;
+margin-top:2px;
+}
 .auth-actions{
 display:flex;
 justify-content:space-between;
@@ -222,6 +235,17 @@ font-size:34px;
 grid-template-columns:1fr;
 }
 }
+@media (max-width: 640px){
+html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;}
+body{min-height:100dvh;height:auto;align-items:flex-start;padding:12px;overflow:visible;}
+.auth-shell{height:auto;min-height:calc(100dvh - 24px);overflow:visible;border-radius:20px;}
+.auth-hero{display:none;}
+.auth-panel{padding:20px 16px;overflow:visible;}
+.auth-card-inner{width:100%;}
+.auth-card h2{font-size:24px;}
+.auth-form{gap:14px;}
+.auth-form input,.auth-form select,.auth-form button{max-width:100%;}
+}
 </style>
 </head>
 <body>
@@ -252,27 +276,28 @@ grid-template-columns:1fr;
     </div>
 </div>
 
-
-@if ($errors->any())
-<div class="error-box">{{$errors->first()}}</div>
-@endif
-
-<form method="POST" action="/login" class="auth-form">
+<form method="POST" action="/login" class="auth-form" novalidate>
 @csrf
 <div class="input-group">
-<label>Email Address</label>
-<div class="input-wrap">
+<label for="email">Email Address</label>
+<div class="input-wrap @error('email') has-error @enderror">
 <i class="fa-solid fa-envelope"></i>
-<input type="email" name="email" value="{{old('email')}}" placeholder="admin@vaatamilsiddha.com" required>
+<input type="email" id="email" name="email" value="{{old('email')}}" placeholder="admin@vaatamilsiddha.com" required maxlength="255">
 </div>
+@error('email')
+<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+@enderror
 </div>
 
 <div class="input-group">
-<label>Password</label>
-<div class="input-wrap">
+<label for="password">Password</label>
+<div class="input-wrap @error('password') has-error @enderror">
 <i class="fa-solid fa-lock"></i>
-<input type="password" name="password" placeholder="Enter password" required>
+<input type="password" id="password" name="password" placeholder="Enter password" required maxlength="255">
 </div>
+@error('password')
+<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+@enderror
 </div>
 
 <div class="auth-actions">

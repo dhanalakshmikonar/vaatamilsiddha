@@ -260,70 +260,82 @@ public function create()
 return view('medicines.create');
 }
 
+private function validateMedicine(Request $request): array
+{
+    return $request->validate([
+        'name' => ['required', 'string', 'max:255', 'regex:/^[\pL0-9\s,.\-+%()\'":;]+$/u'],
+        'mode_of_product' => ['nullable', 'string', 'max:255', 'regex:/^[\pL0-9\s,.\-+%()\'":;\/]+$/u'],
+        'pharmaceutical_name' => ['nullable', 'string', 'max:255', 'regex:/^[\pL0-9\s,.\-+%()\'":;&]+$/u'],
+        'expiry_date' => ['nullable', 'date', 'date_format:Y-m-d'],
+        'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
+        'cost_price' => ['required', 'numeric', 'min:0.01', 'max:999999.99', 'regex:/^\d+(\.\d{1,2})?$/'],
+    ], [
+        'name.required' => 'The medicine name is required.',
+        'name.regex' => 'The medicine name contains invalid characters.',
+        'mode_of_product.regex' => 'The mode of product contains invalid characters.',
+        'pharmaceutical_name.regex' => 'The pharmaceutical name contains invalid characters.',
+        'expiry_date.date' => 'The expiry date must be a valid date.',
+        'expiry_date.date_format' => 'The expiry date format must be YYYY-MM-DD.',
+        'stock.required' => 'The stock quantity is required.',
+        'stock.integer' => 'The stock quantity must be a whole number.',
+        'stock.min' => 'The stock quantity cannot be negative.',
+        'cost_price.required' => 'The cost price is required.',
+        'cost_price.numeric' => 'The cost price must be a valid number.',
+        'cost_price.min' => 'The cost price must be a positive number greater than 0.',
+        'cost_price.regex' => 'The cost price must have at most 2 decimal places.',
+    ]);
+}
+
 public function store(Request $request)
 {
-$data = $request->validate([
-'name' => ['required', 'string', 'max:255'],
-'mode_of_product' => ['nullable', 'string', 'max:255'],
-'pharmaceutical_name' => ['nullable', 'string', 'max:255'],
-'expiry_date' => ['nullable', 'date'],
-'stock' => ['required', 'numeric', 'min:0'],
-'cost_price' => ['required', 'numeric', 'min:0'],
-]);
+    $data = $this->validateMedicine($request);
 
-$costPrice = (float) $data['cost_price'];
-$stock = (float) $data['stock'];
+    $costPrice = (float) $data['cost_price'];
+    $stock = (int) $data['stock'];
 
-Medicine::create([
-'name' => $data['name'],
-'mode_of_product' => $data['mode_of_product'] ?? null,
-'pharmaceutical_name' => $data['pharmaceutical_name'] ?? null,
-'expiry_date' => $data['expiry_date'] ?? null,
-'cost_price' => $costPrice,
-'selling_price' => $this->calculateSellingPrice($costPrice),
-'total_amount' => $this->calculateTotalAmount($costPrice, $stock),
-'cost' => $costPrice,
-'stock' => $stock
-]);
+    Medicine::create([
+        'name' => $data['name'],
+        'mode_of_product' => $data['mode_of_product'] ?? null,
+        'pharmaceutical_name' => $data['pharmaceutical_name'] ?? null,
+        'expiry_date' => $data['expiry_date'] ?? null,
+        'cost_price' => $costPrice,
+        'selling_price' => $this->calculateSellingPrice($costPrice),
+        'total_amount' => $this->calculateTotalAmount($costPrice, $stock),
+        'cost' => $costPrice,
+        'stock' => $stock
+    ]);
 
-return redirect('/medicines');
+    return redirect('/medicines')->with('success', 'Medicine added successfully.');
 }
 
 public function edit($id)
 {
-$medicine = Medicine::find($id);
+    $medicine = Medicine::findOrFail($id);
 
-return view('medicines.edit', compact('medicine'));
+    return view('medicines.edit', compact('medicine'));
 }
 
 public function update(Request $request, $id)
 {
-$data = $request->validate([
-'name' => ['required', 'string', 'max:255'],
-'mode_of_product' => ['nullable', 'string', 'max:255'],
-'pharmaceutical_name' => ['nullable', 'string', 'max:255'],
-'expiry_date' => ['nullable', 'date'],
-'stock' => ['required', 'numeric', 'min:0'],
-'cost_price' => ['required', 'numeric', 'min:0'],
-]);
+    $data = $this->validateMedicine($request);
 
-$medicine = Medicine::find($id);
-$costPrice = (float) $data['cost_price'];
-$stock = (float) $data['stock'];
+    $medicine = Medicine::findOrFail($id);
+    $costPrice = (float) $data['cost_price'];
+    $stock = (int) $data['stock'];
 
-$medicine->update([
-'name'=>$data['name'],
-'mode_of_product'=>$data['mode_of_product'] ?? null,
-'pharmaceutical_name'=>$data['pharmaceutical_name'] ?? null,
-'expiry_date'=>$data['expiry_date'] ?? null,
-'cost_price'=>$costPrice,
-'selling_price'=>$this->calculateSellingPrice($costPrice),
-'total_amount'=>$this->calculateTotalAmount($costPrice, $stock),
-'cost'=>$costPrice,
-'stock'=>$stock
-]);
+    $medicine->update([
+        'name' => $data['name'],
+        'mode_of_product' => $data['mode_of_product'] ?? null,
+        'pharmaceutical_name' => $data['pharmaceutical_name'] ?? null,
+        'expiry_date' => $data['expiry_date'] ?? null,
+        'cost_price' => $costPrice,
+        'selling_price' => $this->calculateSellingPrice($costPrice),
+        'total_amount' => $this->calculateTotalAmount($costPrice, $stock),
+        'cost' => $costPrice,
+        'stock' => $stock
+    ]);
 
-return redirect('/medicines');
+    return redirect('/medicines')->with('success', 'Medicine updated successfully.');
 }
 
 public function destroy($id)

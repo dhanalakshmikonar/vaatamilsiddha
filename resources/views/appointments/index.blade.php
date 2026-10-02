@@ -33,6 +33,7 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Status</th>
+                        <th>Attendance</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -74,11 +75,27 @@
                         </td>
                         <td>
                             @php
-                                $statusClass = strtolower($appointment->status ?? 'scheduled');
+                                $statusClass = strtolower(str_replace(' ', '-', $appointment->status ?? 'scheduled'));
                             @endphp
                             <span class="status-badge {{ $statusClass }}">
                                 <i class="fa-regular fa-circle-dot"></i> {{ $appointment->status }}
                             </span>
+                        </td>
+                        <td>
+                            @if(\Carbon\Carbon::parse($appointment->appointment_date)->isToday())
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <form action="/appointments/{{ $appointment->id }}/attendance" method="POST">
+                                        @csrf<input type="hidden" name="status" value="Visited">
+                                        <button type="submit" class="attendance-btn visited" {{ $appointment->status === 'Visited' ? 'disabled' : '' }}>Visited</button>
+                                    </form>
+                                    <form action="/appointments/{{ $appointment->id }}/attendance" method="POST">
+                                        @csrf<input type="hidden" name="status" value="Not Visited">
+                                        <button type="submit" class="attendance-btn absent" {{ in_array($appointment->status, ['Not Visited', 'Did Not Visit'], true) ? 'disabled' : '' }}>Not Visited</button>
+                                    </form>
+                                </div>
+                            @else
+                                <span style="font-size:12px;color:var(--text-muted);">Today only</span>
+                            @endif
                         </td>
                         <td>
                             <div class="table-actions">
@@ -100,7 +117,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 48px 20px; color: #64748b;">
+                        <td colspan="8" style="text-align: center; padding: 48px 20px; color: #64748b;">
                             <i class="fa-regular fa-calendar-xmark" style="font-size: 38px; margin-bottom: 14px; display: block; color: #94a3b8;"></i>
                             <strong style="font-size:16px;color:#334155;">No appointments scheduled yet</strong><br>
                             <p style="font-size:13px;margin:6px 0 16px 0;color:#94a3b8;">Book consultation slots for registered patients.</p>

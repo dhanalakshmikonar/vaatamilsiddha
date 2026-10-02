@@ -36,14 +36,36 @@
     }
 
     .history-checkbox-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-size: 13.5px;
         font-weight: 600;
-        color: #475569;
+        color: #334155;
         margin-bottom: 16px;
         cursor: pointer;
+        user-select: none;
+        width: max-content;
+        line-height: 1;
+    }
+
+    .history-checkbox-row input[type="checkbox"] {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        cursor: pointer;
+        accent-color: var(--primary);
+        flex-shrink: 0;
+        vertical-align: middle;
+    }
+
+    .history-checkbox-row span {
+        margin: 0;
+        padding: 0;
+        line-height: 1.2;
     }
 
     .history-grid {
@@ -217,47 +239,87 @@
 
             <div class="form-group">
                 <label for="name">Patient Full Name <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="name" id="name" value="{{ old('name') }}" required placeholder="e.g. Samuel Rajan">
+                <input type="text" name="name" id="name" value="{{ old('name') }}" required pattern="^[A-Za-z\s]+$" title="Only alphabets and spaces are allowed" maxlength="255" placeholder="e.g. Samuel Rajan" class="@error('name') is-invalid @enderror">
+                @error('name')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="text" name="phone" id="phone" value="{{ old('phone') }}" placeholder="10-digit mobile number">
+                <input type="text" name="phone" id="phone" value="{{ old('phone') }}" pattern="^[6-9][0-9]{9}$" maxlength="10" title="10-digit mobile number starting with 6, 7, 8, or 9" placeholder="10-digit mobile number" class="@error('phone') is-invalid @enderror">
+                @error('phone')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="age">Age (Years) <span style="color:#ef4444;">*</span></label>
-                <input type="number" name="age" id="age" value="{{ old('age') }}" required placeholder="e.g. 38" min="0" max="150">
+                <input type="number" name="age" id="age" value="{{ old('age') }}" required placeholder="e.g. 38" min="0" max="120" step="1" class="@error('age') is-invalid @enderror">
+                @error('age')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="gender">Gender <span style="color:#ef4444;">*</span></label>
-                <select name="gender" id="gender" required>
+                <select name="gender" id="gender" required class="@error('gender') is-invalid @enderror">
                     <option value="">-- Select Gender --</option>
                     <option value="Male" {{ old('gender') === 'Male' ? 'selected' : '' }}>Male</option>
                     <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
                     <option value="Other" {{ old('gender') === 'Other' ? 'selected' : '' }}>Other</option>
                 </select>
+                @error('gender')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="place">Place / City</label>
-                <input type="text" name="place" id="place" value="{{ old('place') }}" placeholder="e.g. Tirunelveli / Chennai">
+                <input type="text" name="place" id="place" value="{{ old('place') }}" maxlength="255" placeholder="e.g. Tirunelveli / Chennai" class="@error('place') is-invalid @enderror">
+                @error('place')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="entity">Entity / Clinic Tag</label>
-                <input type="text" name="entity" id="entity" value="{{ old('entity') }}" placeholder="e.g. Main Clinic">
+                <input type="text" name="entity" id="entity" value="{{ old('entity') }}" maxlength="255" placeholder="e.g. Main Clinic" class="@error('entity') is-invalid @enderror">
+                @error('entity')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="payment_mode">Payment Mode</label>
-                <input type="text" name="payment_mode" id="payment_mode" value="{{ old('payment_mode') }}" placeholder="Cash / UPI / GPay / Card">
+                <input type="text" name="payment_mode" id="payment_mode" value="{{ old('payment_mode') }}" maxlength="100" placeholder="Cash / UPI / GPay / Card" class="@error('payment_mode') is-invalid @enderror">
+                @error('payment_mode')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="visit_date">Visit Date <span style="color:#ef4444;">*</span></label>
-                <input type="date" name="visit_date" id="visit_date" value="{{ old('visit_date', date('Y-m-d')) }}" required>
+                <input type="date" name="visit_date" id="visit_date" value="{{ old('visit_date', date('Y-m-d')) }}" required class="@error('visit_date') is-invalid @enderror">
+                @error('visit_date')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group full">
+                <label for="doctor_id">Assigned Doctor</label>
+                <select name="doctor_id" id="doctor_id" class="@error('doctor_id') is-invalid @enderror">
+                    <option value="">-- Select Doctor --</option>
+                    @foreach($doctors as $doctor)
+                        <option value="{{ $doctor->id }}" {{ (string) old('doctor_id') === (string) $doctor->id ? 'selected' : '' }}>
+                            Dr. {{ $doctor->name }}{{ $doctor->qualification ? ' — ' . $doctor->qualification : '' }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('doctor_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
+                <small>The assigned doctor’s signature will appear on this patient’s invoice.</small>
             </div>
 
             <!-- Section 2: Clinical History & Diagnosis -->
@@ -297,7 +359,10 @@
 
             <div class="form-group full">
                 <label for="diagnosis">Diagnosis / Chief Complaints</label>
-                <textarea name="diagnosis" id="diagnosis" rows="3" placeholder="Enter pulse observation (Naadi), vatha/pitha/kaba condition, or symptoms...">{{ old('diagnosis') }}</textarea>
+                <textarea name="diagnosis" id="diagnosis" rows="3" maxlength="2000" placeholder="Enter pulse observation (Naadi), vatha/pitha/kaba condition, or symptoms..." class="@error('diagnosis') is-invalid @enderror">{{ old('diagnosis') }}</textarea>
+                @error('diagnosis')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Section 3: Therapy & Consultation -->
@@ -307,7 +372,7 @@
 
             <div class="form-group">
                 <label for="therapy">Therapy (Optional)</label>
-                <select name="therapy" id="therapy" onchange="updatePatientTotal()">
+                <select name="therapy" id="therapy" onchange="updatePatientTotal()" class="@error('therapy') is-invalid @enderror">
                     <option value="">-- Select Therapy --</option>
                     @foreach($therapyOptions as $key => $option)
                     <option
@@ -319,6 +384,9 @@
                     </option>
                     @endforeach
                 </select>
+                @error('therapy')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -327,12 +395,17 @@
                     type="number"
                     step="0.01"
                     min="0"
+                    max="999999.99"
                     name="appointment_amount"
                     id="appointment_amount"
                     value="{{ old('appointment_amount') }}"
                     placeholder="e.g. 200"
                     oninput="updatePatientTotal()"
+                    class="@error('appointment_amount') is-invalid @enderror"
                 >
+                @error('appointment_amount')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group full">

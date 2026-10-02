@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
 use App\Models\Medicine;
@@ -26,6 +27,13 @@ Route::middleware('auth')->group(function () {
         $doctors = \App\Models\Doctor::count();
         $appointments = \App\Models\Appointment::count();
         $certificates = \App\Models\DoctorCertificate::count();
+        $todayDate = now()->toDateString();
+        $monthStart = now()->startOfMonth()->toDateString();
+        $monthEnd = now()->endOfMonth()->toDateString();
+        $todayIncome = (float) Patient::whereDate('visit_date', $todayDate)->sum('total_amount');
+        $todayIncomePatients = Patient::whereDate('visit_date', $todayDate)->count();
+        $monthIncome = (float) Patient::whereBetween('visit_date', [$monthStart, $monthEnd])->sum('total_amount');
+        $monthIncomePatients = Patient::whereBetween('visit_date', [$monthStart, $monthEnd])->count();
 
         $recentAppointments = \App\Models\Appointment::with(['patient', 'doctor'])
             ->orderBy('appointment_date', 'desc')
@@ -42,6 +50,10 @@ Route::middleware('auth')->group(function () {
             'doctors',
             'appointments',
             'certificates',
+            'todayIncome',
+            'todayIncomePatients',
+            'monthIncome',
+            'monthIncomePatients',
             'recentAppointments',
             'recentPatients',
         ));
@@ -60,6 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('medicines', MedicineController::class);
 
     Route::get('/billing', [BillingController::class, 'index']);
+    Route::get('/income/daily', [IncomeController::class, 'daily']);
+    Route::get('/income/monthly', [IncomeController::class, 'monthly']);
     Route::get('/billing/create', [BillingController::class, 'create']);
     Route::post('/billing/preview', [BillingController::class, 'preview']);
     Route::get('/billing/export', [BillingController::class, 'export']);
@@ -72,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/doctors/{id}', [DoctorController::class, 'update']);
     Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
 
+    Route::post('/appointments/{id}/attendance', [AppointmentController::class, 'markAttendance']);
     Route::resource('appointments', AppointmentController::class);
 
     Route::resource('certificates', \App\Http\Controllers\DoctorCertificateController::class);

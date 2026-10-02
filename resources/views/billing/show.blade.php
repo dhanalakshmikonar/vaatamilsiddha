@@ -394,11 +394,12 @@
             </div>
 
             @php
-                // Fetch doctor with uploaded signature from Doctor tab or patient's appointment
+                // Prefer the doctor assigned to this patient; retain legacy fallbacks for older records.
                 $appointmentDoc = $patient->appointments()->with('doctor')->latest()->first()?->doctor;
-                $doctorSignatory = ($appointmentDoc && !empty($appointmentDoc->signature)) 
-                    ? $appointmentDoc 
-                    : (\App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->latest()->first() ?? \App\Models\Doctor::first());
+                $doctorSignatory = $patient->doctor
+                    ?? (($appointmentDoc && !empty($appointmentDoc->signature))
+                        ? $appointmentDoc
+                        : (\App\Models\Doctor::whereNotNull('signature')->where('signature', '!=', '')->latest()->first() ?? \App\Models\Doctor::first()));
 
                 $billingSigImg = null;
                 if ($doctorSignatory && !empty($doctorSignatory->signature)) {

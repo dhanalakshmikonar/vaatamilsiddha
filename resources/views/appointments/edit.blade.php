@@ -32,7 +32,7 @@
 
             <div class="form-group">
                 <label for="patient_id">Select Patient <span style="color:#ef4444;">*</span></label>
-                <select name="patient_id" id="patient_id" required onchange="updatePatientPhone()">
+                <select name="patient_id" id="patient_id" required onchange="updatePatientPhone()" class="@error('patient_id') is-invalid @enderror">
                     <option value="">-- Choose Patient --</option>
                     @foreach($patients as $patient)
                     <option
@@ -44,6 +44,9 @@
                     </option>
                     @endforeach
                 </select>
+                @error('patient_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -67,7 +70,7 @@
 
             <div class="form-group">
                 <label for="doctor_id">Consulting Doctor <span style="color:#ef4444;">*</span></label>
-                <select name="doctor_id" id="doctor_id" required>
+                <select name="doctor_id" id="doctor_id" required class="@error('doctor_id') is-invalid @enderror">
                     <option value="">-- Choose Doctor --</option>
                     @foreach($doctors as $doctor)
                     <option
@@ -78,17 +81,15 @@
                     </option>
                     @endforeach
                 </select>
+                @error('doctor_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
-                <label for="status">Appointment Status <span style="color:#ef4444;">*</span></label>
-                <select name="status" id="status" required>
-                    @foreach(['Scheduled', 'Confirmed', 'Completed', 'Cancelled'] as $statusOption)
-                    <option value="{{ $statusOption }}" {{ old('status', $appointment->status) === $statusOption ? 'selected' : '' }}>
-                        {{ $statusOption }}
-                    </option>
-                    @endforeach
-                </select>
+                <label>Attendance Status</label>
+                <div class="appointment-status-note"><i class="fa-regular fa-circle-dot"></i> {{ $appointment->status }}</div>
+                <small>Use the appointment list to mark today’s appointment as Visited or Didn’t visit.</small>
             </div>
 
             <div class="form-section-title">
@@ -103,7 +104,11 @@
                     id="appointment_date"
                     value="{{ old('appointment_date', $appointment->appointment_date) }}"
                     required
+                    class="@error('appointment_date') is-invalid @enderror"
                 >
+                @error('appointment_date')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -114,7 +119,11 @@
                     id="appointment_time"
                     value="{{ old('appointment_time', \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i')) }}"
                     required
+                    class="@error('appointment_time') is-invalid @enderror"
                 >
+                @error('appointment_time')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-section-title">
@@ -127,8 +136,13 @@
                     name="notes"
                     id="notes"
                     rows="3"
+                    maxlength="1000"
                     placeholder="Enter any initial symptoms, patient complaints, or instructions..."
+                    class="@error('notes') is-invalid @enderror"
                 >{{ old('notes', $appointment->notes) }}</textarea>
+                @error('notes')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
         </div>

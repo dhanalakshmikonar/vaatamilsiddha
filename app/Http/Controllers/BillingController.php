@@ -41,7 +41,13 @@ class BillingController extends Controller
         $validated = $request->validate([
             'medicine_id' => ['nullable', 'integer', 'exists:medicines,id'],
             'therapy' => ['nullable', 'string', Rule::in(TherapyOptions::keys())],
-            'appointment' => ['nullable', 'numeric', 'min:0'],
+            'appointment' => ['nullable', 'numeric', 'min:0', 'max:999999.99', 'regex:/^\d+(\.\d{1,2})?$/'],
+        ], [
+            'medicine_id.exists' => 'The selected medicine does not exist.',
+            'therapy.in' => 'The selected therapy procedure is invalid.',
+            'appointment.numeric' => 'The consultation fee must be a valid number.',
+            'appointment.min' => 'The consultation fee cannot be negative.',
+            'appointment.regex' => 'The consultation fee may have at most 2 decimal places.',
         ]);
 
         $medicine = null;
@@ -69,7 +75,7 @@ class BillingController extends Controller
 
     public function show($id)
     {
-        $patient = Patient::with('patientMedicines.medicine')->findOrFail($id);
+        $patient = Patient::with(['patientMedicines.medicine', 'doctor'])->findOrFail($id);
 
         $billSummary = $this->buildBillSummary($patient);
 

@@ -26,7 +26,7 @@
 
             <div class="form-group full">
                 <label for="medicine_id">Medicines (Optional)</label>
-                <select name="medicine_id" id="medicine_id" onchange="updateBillingTotal()">
+                <select name="medicine_id" id="medicine_id" onchange="updateBillingTotal()" class="@error('medicine_id') is-invalid @enderror">
                     <option value="">-- Select Prescribed Medicine --</option>
                     @foreach($medicines as $medicine)
                     <option
@@ -38,6 +38,9 @@
                     </option>
                     @endforeach
                 </select>
+                @error('medicine_id')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-section-title">
@@ -46,7 +49,7 @@
 
             <div class="form-group full">
                 <label for="therapy">Therapy Procedure (Optional)</label>
-                <select name="therapy" id="therapy" onchange="updateBillingTotal()">
+                <select name="therapy" id="therapy" onchange="updateBillingTotal()" class="@error('therapy') is-invalid @enderror">
                     <option value="">-- Select Therapy Type --</option>
                     @foreach($therapyOptions as $key => $option)
                     <option
@@ -58,6 +61,9 @@
                     </option>
                     @endforeach
                 </select>
+                @error('therapy')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-section-title">
@@ -70,12 +76,17 @@
                     type="number"
                     step="0.01"
                     min="0"
+                    max="999999.99"
                     name="appointment"
                     id="appointment"
                     value="{{ old('appointment') }}"
                     placeholder="Enter consultation amount e.g. 300"
                     oninput="updateBillingTotal()"
+                    class="@error('appointment') is-invalid @enderror"
                 >
+                @error('appointment')
+                    <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group full" style="margin-top:12px;background:#f8fafc;padding:20px;border-radius:14px;border:1px solid var(--border-color);">
